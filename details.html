@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vehicle Details - Junk 'n' Deals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .back-link {
+        color: #166534;
+      }
+      .detail-label {
+        color: #4b5563;
+      }
+      .price-tag-details {
+        color: #16a34a;
+      }
+      .part-card {
+        border-left-width: 4px;
+        border-left-color: #166534;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <header class="bg-white p-4 shadow-sm flex items-center justify-between">
+        <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
+          Junk 'n' Deals
+        </h1>
+        <a
+          href="index.html"
+          class="text-lg font-semibold back-link hover:underline"
+          >&larr; Back to Inventory</a
+        >
+      </header>
+
+      <main class="p-4 md:p-6">
+        <div
+          id="details-container"
+          class="bg-white rounded-lg shadow-md overflow-hidden"
+        >
+          <!-- Vehicle details will be injected here -->
+        </div>
+
+        <div id="compatibility-tool" class="mt-8">
+          <!-- Part compatibility tool will be injected here -->
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // --- MOCK PARTS DATABASE ---
+      // In a real application, this would come from a server.
+      const partsDatabase = [
+        {
+          name: "Alternator",
+          partNumber: "A2T82899",
+          fitment: [
+            { make: "Mitsubishi", model: "Lancer", years: [2008, 2009, 2010] },
+          ],
+        },
+        {
+          name: "Radiator",
+          partNumber: "1350A244",
+          fitment: [
+            {
+              make: "Mitsubishi",
+              model: "Lancer",
+              years: [2008, 2009, 2010, 2011],
+            },
+          ],
+        },
+        {
+          name: "Starter Motor",
+          partNumber: "CM5Z-11002-B",
+          fitment: [
+            { make: "Ford", model: "Focus", years: [2012, 2013, 2014] },
+          ],
+        },
+        {
+          name: "Power Steering Pump",
+          partNumber: "56110-PLA-023",
+          fitment: [
+            {
+              make: "Honda",
+              model: "Civic",
+              years: [2001, 2002, 2003, 2004, 2005],
+            },
+          ],
+        },
+        {
+          name: "AC Compressor",
+          partNumber: "38810-PLM-A02",
+          fitment: [
+            {
+              make: "Honda",
+              model: "Civic",
+              years: [2001, 2002, 2003, 2004, 2005],
+            },
+          ],
+        },
+        {
+          name: "Brake Caliper (Front Right)",
+          partNumber: "BV6Z-2B120-A",
+          fitment: [
+            { make: "Ford", model: "Focus", years: [2012, 2013] },
+            { make: "Ford", model: "Escape", years: [2013] },
+          ],
+        },
+        {
+          name: "V6 Engine Alternator",
+          partNumber: "4801323AD",
+          fitment: [
+            {
+              make: "Jeep",
+              model: "Wrangler",
+              years: [2007, 2008, 2009, 2010, 2011],
+            },
+            {
+              make: "Dodge",
+              model: "Grand Caravan",
+              years: [2008, 2009, 2010],
+            },
+          ],
+        },
+      ];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const selectedVehicle = JSON.parse(
+          localStorage.getItem("selectedVehicle")
+        );
+        const fullInventory = JSON.parse(
+          localStorage.getItem("vehicleInventory")
+        );
+
+        const detailsContainer = document.getElementById("details-container");
+        const compatibilityContainer =
+          document.getElementById("compatibility-tool");
+
+        if (selectedVehicle && fullInventory) {
+          displayVehicleDetails(selectedVehicle, detailsContainer);
+          displayCompatibilityTool(
+            selectedVehicle,
+            fullInventory,
+            compatibilityContainer
+          );
+        } else {
+          detailsContainer.innerHTML =
+            '<div class="p-8 text-center"><h2 class="text-2xl font-bold">No Vehicle Selected</h2><p class="mt-4 text-gray-600">Please go back to the inventory and select a vehicle to see its details.</p></div>';
+        }
+      });
+
+      function displayVehicleDetails(vehicle, container) {
+        const detailsHTML = `
+            <div class="relative">
+                <img src="${vehicle.imageUrl}" alt="${vehicle.year} ${
+          vehicle.make
+        } ${
+          vehicle.model
+        }" class="w-full h-72 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/800x600/ef4444/ffffff?text=Image+Not+Found';">
+                <div class="absolute top-0 right-0 bg-white bg-opacity-80 px-6 py-3 rounded-bl-lg">
+                  <p class="text-3xl font-extrabold price-tag-details">$${vehicle.price.toLocaleString()}</p>
+                </div>
+            </div>
+            <div class="p-6">
+                <h2 class="text-3xl font-bold text-gray-800">${vehicle.year} ${
+          vehicle.make
+        } ${vehicle.model}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mt-6 text-lg">
+                    <div><span class="font-semibold detail-label">VIN:</span> ${
+                      vehicle.vin
+                    }</div>
+                    <div><span class="font-semibold detail-label">Stock #:</span> ${
+                      vehicle.stockNumber
+                    }</div>
+                    <div><span class="font-semibold detail-label">Color:</span> ${
+                      vehicle.color
+                    }</div>
+                    <div><span class="font-semibold detail-label">Mileage:</span> ${vehicle.mileage.toLocaleString()} mi</div>
+                    <div><span class="font-semibold detail-label">Engine:</span> ${
+                      vehicle.engine
+                    }</div>
+                    <div><span class="font-semibold detail-label">Transmission:</span> ${
+                      vehicle.transmission
+                    }</div>
+                    <div><span class="font-semibold detail-label">Location:</span> Sec ${
+                      vehicle.section
+                    }, Row ${vehicle.row}, Space ${vehicle.space}</div>
+                    <div><span class="font-semibold detail-label">Available:</span> ${
+                      vehicle.availableDate
+                    }</div>
+                </div>
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700">Notes</h3>
+                    <p class="mt-2 text-gray-600 text-lg">${vehicle.notes}</p>
+                </div>
+            </div>`;
+        container.innerHTML = detailsHTML;
+      }
+
+      function displayCompatibilityTool(currentVehicle, inventory, container) {
+        let compatiblePartsHTML =
+          '<h2 class="text-2xl font-bold text-gray-800 mb-4">Part Compatibility Tool</h2>';
+        const foundParts = [];
+
+        // Find parts that fit the current vehicle
+        partsDatabase.forEach((part) => {
+          const isCompatible = part.fitment.some(
+            (fit) =>
+              fit.make === currentVehicle.make &&
+              fit.model === currentVehicle.model &&
+              fit.years.includes(currentVehicle.year)
+          );
+          if (isCompatible) {
+            foundParts.push(part);
+          }
+        });
+
+        if (foundParts.length === 0) {
+          compatiblePartsHTML += `<div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">No interchangeable parts information found in our database for this vehicle.</div>`;
+          container.innerHTML = compatiblePartsHTML;
+          return;
+        }
+
+        // For each compatible part, find other vehicles in inventory that are also compatible
+        compatiblePartsHTML += '<div class="space-y-4">';
+        foundParts.forEach((part) => {
+          const donorVehicles = inventory.filter((vehicle) => {
+            // Don't list the current vehicle as its own donor
+            if (vehicle.vin === currentVehicle.vin) return false;
+
+            return part.fitment.some(
+              (fit) =>
+                fit.make === vehicle.make &&
+                fit.model === vehicle.model &&
+                fit.years.includes(vehicle.year)
+            );
+          });
+
+          compatiblePartsHTML += `
+                <div class="bg-white rounded-lg shadow-md p-4 part-card">
+                  <h3 class="font-bold text-lg text-gray-800">${part.name}</h3>
+                  <p class="text-sm text-gray-500 mb-2">Part #: ${part.partNumber}</p>
+                  <h4 class="font-semibold text-md text-gray-700 mt-3">Other Donor Vehicles in Inventory:</h4>
+              `;
+
+          if (donorVehicles.length > 0) {
+            compatiblePartsHTML +=
+              '<ul class="list-disc list-inside mt-1 space-y-1 text-gray-600">';
+            donorVehicles.forEach((donor) => {
+              compatiblePartsHTML += `<li>${donor.year} ${donor.make} ${donor.model} (VIN: ${donor.vin})</li>`;
+            });
+            compatiblePartsHTML += "</ul>";
+          } else {
+            compatiblePartsHTML += '<p class="text-gray-500 mt-1">None</p>';
+          }
+          compatiblePartsHTML += "</div>";
+        });
+        compatiblePartsHTML += "</div>";
+
+        container.innerHTML = compatiblePartsHTML;
+      }
+    </script>
+  </body>
+</html>

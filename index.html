@@ -1,9 +1,754 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Junk 'n' Deals - Advanced Inventory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .search-btn {
+        background-color: #fde047;
+      }
+      .vehicle-title,
+      .details-link {
+        color: #166534;
+      }
+      .location-bar svg {
+        fill: #4b5563;
+      }
+      .details-button {
+        background-color: #166534;
+        color: white;
+        transition: background-color 0.3s;
+      }
+      .details-button:hover {
+        background-color: #15803d;
+      }
+      .price-tag {
+        color: #16a34a;
+      }
+      .filter-label {
+        font-weight: 500;
+        color: #4b5563;
+      }
+      .filter-select,
+      .filter-input {
+        border-color: #d1d5db;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        border-color: #166534;
+        box-shadow: 0 0 0 2px rgba(22, 101, 52, 0.2);
+        outline: none;
+      }
+      .modal-bg {
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      .btn-primary {
+        background-color: #166534;
+        color: white;
+      }
+      .btn-primary:hover {
+        background-color: #15803d;
+      }
+      .btn-secondary {
+        background-color: #6b7280;
+        color: white;
+      }
+      .btn-secondary:hover {
+        background-color: #4b5563;
+      }
+      input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        background: transparent;
+      }
+      input[type="range"]:focus {
+        outline: none;
+      }
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 4px;
+        cursor: pointer;
+        background: #d1d5db;
+        border-radius: 2px;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        background: #166534;
+        cursor: pointer;
+        -webkit-appearance: none;
+        margin-top: -6px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <header class="bg-white p-4 shadow-sm flex items-center justify-between">
+        <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
+          Junk 'n' Deals
+        </h1>
+        <nav class="flex items-center space-x-6">
+          <div class="flex items-center space-x-2 location-bar">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 0 24 24"
+              width="20px"
+              class="fill-current text-gray-500"
+            >
+              <path d="M0 0h24v24H0V0z" fill="none" />
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+              />
+            </svg>
+            <span class="font-semibold text-gray-700">CENTRAL</span>
+          </div>
+          <button
+            id="adminLoginBtn"
+            class="font-semibold text-gray-600 hover:text-green-800 transition"
+          >
+            Admin Login
+          </button>
+        </nav>
+      </header>
 
-<body>
-  <h1>Toni</h1>
-  <p>Welcome to my website!<br> I am a web developer that has a current goal of making websites for income</p>
-  <img src="https://content.codecademy.com/articles/github-pages-via-web-app/happy-ice-cream.gif" />
-</body>
+      <main class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Filters & Sorting Sidebar -->
+        <aside class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md h-fit">
+          <h2 class="text-xl font-bold text-gray-800 mb-6">
+            Filters & Sorting
+          </h2>
 
+          <div class="mb-6">
+            <label for="sort" class="block text-sm filter-label mb-1"
+              >Sort By</label
+            >
+            <select
+              id="sort"
+              class="w-full p-2 rounded-md border filter-select"
+            >
+              <option value="recent">Recently Added</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="year-desc">Year: New to Old</option>
+              <option value="year-asc">Year: Old to New</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="make" class="block text-sm filter-label mb-1"
+              >Make</label
+            >
+            <select
+              id="make"
+              class="w-full p-2 rounded-md border filter-select"
+            ></select>
+          </div>
+          <div class="mb-6">
+            <label for="model" class="block text-sm filter-label mb-1"
+              >Model</label
+            >
+            <select
+              id="model"
+              class="w-full p-2 rounded-md border filter-select"
+            ></select>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm filter-label mb-1">Price Range</label>
+            <div
+              class="flex items-center justify-between text-sm text-gray-600"
+            >
+              <span id="priceMin-label">$0</span>
+              <span id="priceMax-label">$5000</span>
+            </div>
+            <input
+              type="range"
+              id="priceRange"
+              min="0"
+              max="5000"
+              step="100"
+              class="w-full mt-1"
+            />
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm filter-label mb-1">Mileage</label>
+            <div
+              class="flex items-center justify-between text-sm text-gray-600"
+            >
+              <span id="mileageMin-label">0k</span>
+              <span id="mileageMax-label">250k+</span>
+            </div>
+            <input
+              type="range"
+              id="mileageRange"
+              min="0"
+              max="250000"
+              step="5000"
+              class="w-full mt-1"
+            />
+          </div>
+          <div class="mb-6">
+            <label for="bodyType" class="block text-sm filter-label mb-1"
+              >Body Type</label
+            >
+            <select
+              id="bodyType"
+              class="w-full p-2 rounded-md border filter-select"
+            ></select>
+          </div>
+          <div class="mb-6">
+            <label for="transmission" class="block text-sm filter-label mb-1"
+              >Transmission</label
+            >
+            <select
+              id="transmission"
+              class="w-full p-2 rounded-md border filter-select"
+            ></select>
+          </div>
+          <button
+            id="resetFilters"
+            class="w-full p-3 rounded-lg bg-gray-600 text-white font-semibold hover:bg-gray-700 transition"
+          >
+            Reset Filters
+          </button>
+        </aside>
+
+        <!-- Inventory Grid -->
+        <div class="lg:col-span-3">
+          <h1 class="text-2xl font-bold text-gray-800 mb-6">
+            VEHICLE INVENTORY (<span id="vehicle-count">0</span>)
+          </h1>
+          <div
+            id="vehicle-inventory"
+            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+          ></div>
+          <div
+            id="no-results"
+            class="hidden text-center py-20 bg-white rounded-lg shadow-md"
+          >
+            <p class="text-gray-500 text-xl font-semibold">
+              No vehicles match your criteria.
+            </p>
+            <p class="text-gray-400 mt-2">Try adjusting your filters.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div
+      id="loginModal"
+      class="fixed inset-0 modal-bg items-center justify-center hidden"
+    >
+      <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm">
+        <h3 class="text-2xl font-bold mb-6 text-center">Admin Login</h3>
+        <form id="loginForm">
+          <div class="space-y-4">
+            <input
+              class="w-full p-3 border rounded-md"
+              type="text"
+              id="username"
+              placeholder="Username"
+              required
+            />
+            <input
+              class="w-full p-3 border rounded-md"
+              type="password"
+              id="password"
+              placeholder="Password"
+              required
+            />
+          </div>
+          <p
+            id="loginError"
+            class="text-red-500 text-sm text-center mt-4 hidden"
+          >
+            Invalid username or password.
+          </p>
+          <div class="flex justify-end gap-4 mt-6">
+            <button
+              type="button"
+              id="cancelLoginBtn"
+              class="btn-secondary px-6 py-2 rounded-lg font-semibold"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn-primary px-6 py-2 rounded-lg font-semibold"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const vehicles = [
+        {
+          year: 2008,
+          make: "Mitsubishi",
+          model: "Lancer",
+          vin: "JA3AU26U08U005457",
+          color: "Blue",
+          section: "Cars",
+          row: 12,
+          space: 9,
+          stockNumber: "1231-7714",
+          availableDate: "6/23/2025",
+          imageUrl:
+            "https://th.bing.com/th/id/OIP.qBDU6C25C_1xYJhgovplTQHaFj?w=235&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
+          mileage: 145000,
+          engine: "2.0L I4",
+          transmission: "Automatic",
+          notes:
+            "Front-end damage. Engine and transmission are in good condition.",
+          price: 850,
+          bodyType: "Sedan",
+          added: "2025-06-20",
+        },
+        {
+          year: 2012,
+          make: "Ford",
+          model: "Focus",
+          vin: "1FADP3F28CL123456",
+          color: "Red",
+          section: "Cars",
+          row: 5,
+          space: 2,
+          stockNumber: "4589-1211",
+          availableDate: "6/28/2025",
+          imageUrl:
+            "https://th.bing.com/th/id/OIP.vChiNl3lERoucwvYRgCjAAHaFj?w=235&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
+          mileage: 98000,
+          engine: "2.0L I4",
+          transmission: "Automatic",
+          notes: "Minor body scratches. Runs and drives.",
+          price: 1500,
+          bodyType: "Sedan",
+          added: "2025-06-18",
+        },
+        {
+          year: 2005,
+          make: "Honda",
+          model: "Civic",
+          vin: "2HGEJ76595H567890",
+          color: "Silver",
+          section: "Cars",
+          row: 8,
+          space: 14,
+          stockNumber: "7821-4453",
+          availableDate: "7/01/2025",
+          imageUrl:
+            "https://th.bing.com/th/id/OIP.rm_niI33sZ0m0PUtMpQ4FwHaFj?w=235&h=180&c=7&r=0&o=7&pid=1.7&rm=3",
+          mileage: 180000,
+          engine: "1.7L I4",
+          transmission: "Manual",
+          notes: "Clean interior. Good for parts.",
+          price: 600,
+          bodyType: "Coupe",
+          added: "2025-06-22",
+        },
+        {
+          year: 2015,
+          make: "Chevrolet",
+          model: "Cruze",
+          vin: "1G1PC5SB3F7112233",
+          color: "Black",
+          section: "Cars",
+          row: 1,
+          space: 7,
+          stockNumber: "3321-9870",
+          availableDate: "7/05/2025",
+          imageUrl:
+            "https://th.bing.com/th/id/OIP.2sOY3yDXzSoqDkSdh0DfIAHaFj?w=241&h=181&c=7&r=0&o=7&pid=1.7&rm=3",
+          mileage: 110000,
+          engine: "1.4L Turbo I4",
+          transmission: "Automatic",
+          notes: "Side panel damage. Interior is in great shape.",
+          price: 1800,
+          bodyType: "Sedan",
+          added: "2025-06-25",
+        },
+        {
+          year: 2009,
+          make: "Toyota",
+          model: "Camry",
+          vin: "4T1BE46K89U334455",
+          color: "White",
+          section: "Cars",
+          row: 3,
+          space: 11,
+          stockNumber: "6543-1122",
+          availableDate: "6/25/2025",
+          imageUrl:
+            "data:image/webp;base64,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",
+          mileage: 210000,
+          engine: "2.4L I4",
+          transmission: "Automatic",
+          notes: "High mileage but runs well. Some rust on quarter panels.",
+          price: 1250,
+          bodyType: "Sedan",
+          added: "2025-06-15",
+        },
+        {
+          year: 2011,
+          make: "Nissan",
+          model: "Altima",
+          vin: "1N4AL2AP5BC667788",
+          color: "Gray",
+          section: "Cars",
+          row: 10,
+          space: 1,
+          stockNumber: "9876-5432",
+          availableDate: "6/30/2025",
+          imageUrl:
+            "data:image/webp;base64,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",
+          mileage: 135000,
+          engine: "2.5L I4",
+          transmission: "Automatic",
+          notes: "Transmission issues. Good for body parts and interior.",
+          price: 750,
+          bodyType: "Sedan",
+          added: "2025-06-19",
+        },
+        {
+          year: 2007,
+          make: "Dodge",
+          model: "Ram 1500",
+          vin: "3D7HU18N57G998877",
+          color: "Maroon",
+          section: "Trucks",
+          row: 1,
+          space: 4,
+          stockNumber: "2468-1357",
+          availableDate: "7/10/2025",
+          imageUrl:
+            "https://th.bing.com/th/id/OIP.f2V1F6MrCVAcpelde3_bFwHaFj?w=251&h=188&c=7&r=0&o=7&pid=1.7&rm=3",
+          mileage: 195000,
+          engine: "5.7L V8 HEMI",
+          transmission: "Automatic",
+          notes: "Solid frame and body. Engine needs work.",
+          price: 2200,
+          bodyType: "Truck",
+          added: "2025-06-24",
+        },
+        {
+          year: 2014,
+          make: "Hyundai",
+          model: "Elantra",
+          vin: "KMHDH4AE4EU112233",
+          color: "Silver",
+          section: "Cars",
+          row: 9,
+          space: 5,
+          stockNumber: "1357-2468",
+          availableDate: "7/12/2025",
+          imageUrl:
+            "https://th.bing.com/th/id/OIP.FWV_WoV5NF2h5l4kXGBl8gHaFj?w=267&h=200&c=7&r=0&o=7&pid=1.7&rm=3",
+          mileage: 85000,
+          engine: "1.8L I4",
+          transmission: "Automatic",
+          notes: "Rear bumper damage. Low mileage engine.",
+          price: 1650,
+          bodyType: "Sedan",
+          added: "2025-06-23",
+        },
+        {
+          year: 2010,
+          make: "Jeep",
+          model: "Wrangler",
+          vin: "1J4FA24S4AP445566",
+          color: "Green",
+          section: "SUVs",
+          row: 2,
+          space: 3,
+          stockNumber: "5566-7788",
+          availableDate: "7/15/2025",
+          imageUrl:
+            "https://th.bing.com/th/id/OIP.YLM_opWJgVZylbfLC1K1-gHaFj?w=256&h=191&c=7&r=0&o=7&pid=1.7&rm=3",
+          mileage: 120000,
+          engine: "3.8L V6",
+          transmission: "Manual",
+          notes: "Frame has some rust. Good for doors, top, and axles.",
+          price: 2800,
+          bodyType: "SUV",
+          added: "2025-06-17",
+        },
+        {
+          year: 2006,
+          make: "Ford",
+          model: "Explorer",
+          vin: "1FM5U28E56UA77889",
+          color: "Blue",
+          section: "SUVs",
+          row: 4,
+          space: 6,
+          stockNumber: "8899-0011",
+          availableDate: "7/20/2025",
+          imageUrl:
+            "data:image/webp;base64,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",
+          mileage: 160000,
+          engine: "4.0L V6",
+          transmission: "Automatic",
+          notes: "Intact interior. Good glass and body panels.",
+          price: 950,
+          bodyType: "SUV",
+          added: "2025-06-21",
+        },
+      ];
+
+      // DOM Elements
+      const inventoryContainer = document.getElementById("vehicle-inventory");
+      const noResultsEl = document.getElementById("no-results");
+      const vehicleCountEl = document.getElementById("vehicle-count");
+      const sortEl = document.getElementById("sort");
+      const makeEl = document.getElementById("make");
+      const modelEl = document.getElementById("model");
+      const priceRangeEl = document.getElementById("priceRange");
+      const mileageRangeEl = document.getElementById("mileageRange");
+      const bodyTypeEl = document.getElementById("bodyType");
+      const transmissionEl = document.getElementById("transmission");
+      const resetBtn = document.getElementById("resetFilters");
+      const priceMinLabel = document.getElementById("priceMin-label");
+      const priceMaxLabel = document.getElementById("priceMax-label");
+      const mileageMinLabel = document.getElementById("mileageMin-label");
+      const mileageMaxLabel = document.getElementById("mileageMax-label");
+
+      // Login Modal Elements
+      const adminLoginBtn = document.getElementById("adminLoginBtn");
+      const loginModal = document.getElementById("loginModal");
+      const cancelLoginBtn = document.getElementById("cancelLoginBtn");
+      const loginForm = document.getElementById("loginForm");
+      const loginError = document.getElementById("loginError");
+
+      window.prepareDetailsPage = function (vin) {
+        const vehicle = vehicles.find((v) => v.vin === vin);
+        if (vehicle) {
+          localStorage.setItem("selectedVehicle", JSON.stringify(vehicle));
+          localStorage.setItem("vehicleInventory", JSON.stringify(vehicles));
+          window.location.href = "details.html";
+        }
+      };
+
+      function populateFilters() {
+        const makes = [...new Set(vehicles.map((v) => v.make))].sort();
+        const bodyTypes = [...new Set(vehicles.map((v) => v.bodyType))].sort();
+        const transmissions = [
+          ...new Set(vehicles.map((v) => v.transmission)),
+        ].sort();
+        makeEl.innerHTML =
+          '<option value="">All Makes</option>' +
+          makes.map((m) => `<option value="${m}">${m}</option>`).join("");
+        bodyTypeEl.innerHTML =
+          '<option value="">All Body Types</option>' +
+          bodyTypes.map((b) => `<option value="${b}">${b}</option>`).join("");
+        transmissionEl.innerHTML =
+          '<option value="">All Transmissions</option>' +
+          transmissions
+            .map((t) => `<option value="${t}">${t}</option>`)
+            .join("");
+        const prices = vehicles.map((v) => v.price);
+        priceRangeEl.min = Math.min(...prices);
+        priceRangeEl.max = Math.max(...prices);
+        priceRangeEl.value = priceRangeEl.max;
+        priceMinLabel.textContent = `$${priceRangeEl.min}`;
+        priceMaxLabel.textContent = `$${priceRangeEl.max}`;
+        const mileages = vehicles.map((v) => v.mileage);
+        mileageRangeEl.min = Math.min(...mileages);
+        mileageRangeEl.max = Math.max(...mileages);
+        mileageRangeEl.value = mileageRangeEl.max;
+        mileageMinLabel.textContent = `${(mileageRangeEl.min / 1000).toFixed(
+          0
+        )}k`;
+        mileageMaxLabel.textContent = `${(mileageRangeEl.max / 1000).toFixed(
+          0
+        )}k+`;
+      }
+
+      function updateModelFilter(selectedMake) {
+        modelEl.innerHTML = '<option value="">All Models</option>';
+        if (selectedMake) {
+          const models = [
+            ...new Set(
+              vehicles
+                .filter((v) => v.make === selectedMake)
+                .map((v) => v.model)
+            ),
+          ].sort();
+          modelEl.innerHTML += models
+            .map((m) => `<option value="${m}">${m}</option>`)
+            .join("");
+        }
+      }
+
+      function applyFiltersAndSort() {
+        let filteredVehicles = [...vehicles];
+        const make = makeEl.value;
+        const model = modelEl.value;
+        const maxPrice = parseInt(priceRangeEl.value, 10);
+        const maxMileage = parseInt(mileageRangeEl.value, 10);
+        const bodyType = bodyTypeEl.value;
+        const transmission = transmissionEl.value;
+
+        filteredVehicles = filteredVehicles.filter((v) => {
+          if (make && v.make !== make) return false;
+          if (model && v.model !== model) return false;
+          if (bodyType && v.bodyType !== bodyType) return false;
+          if (transmission && v.transmission !== transmission) return false;
+          if (v.price > maxPrice) return false;
+          if (v.mileage > maxMileage) return false;
+          return true;
+        });
+
+        const sort = sortEl.value;
+        filteredVehicles.sort((a, b) => {
+          switch (sort) {
+            case "price-asc":
+              return a.price - b.price;
+            case "price-desc":
+              return b.price - a.price;
+            case "year-desc":
+              return b.year - a.year;
+            case "year-asc":
+              return a.year - b.year;
+            case "recent":
+              return new Date(b.added) - new Date(a.added);
+            default:
+              return 0;
+          }
+        });
+
+        displayVehicles(filteredVehicles);
+      }
+
+      function displayVehicles(vehicleList) {
+        inventoryContainer.innerHTML = "";
+        vehicleCountEl.textContent = vehicleList.length;
+        noResultsEl.classList.toggle("hidden", vehicleList.length > 0);
+
+        vehicleList.forEach((vehicle) => {
+          const vehicleCard = `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+                  <div class="relative">
+                      <img src="${vehicle.imageUrl}" alt="${vehicle.year} ${
+            vehicle.make
+          } ${
+            vehicle.model
+          }" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/ef4444/ffffff?text=Image+Not+Found';">
+                      <div class="absolute top-0 right-0 bg-white bg-opacity-80 px-4 py-2 rounded-bl-lg">
+                          <p class="text-2xl font-extrabold price-tag">$${vehicle.price.toLocaleString()}</p>
+                      </div>
+                  </div>
+                  <div class="p-4 flex-grow flex flex-col">
+                    <h3 class="text-xl font-bold vehicle-title">${
+                      vehicle.year
+                    } ${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()}</h3>
+                    <div class="text-gray-600 mt-2 space-y-1 text-sm flex-grow">
+                      <p><span class="font-semibold">Mileage:</span> ${vehicle.mileage.toLocaleString()} mi</p>
+                      <p><span class="font-semibold">VIN:</span> ${
+                        vehicle.vin
+                      }</p>
+                    </div>
+                    <div class="mt-4">
+                        <a href="details.html" onclick="prepareDetailsPage('${
+                          vehicle.vin
+                        }')" class="block w-full text-center p-3 rounded-lg details-button font-semibold mb-3">More Details</a>
+                    </div>
+                  </div>
+                </div>`;
+          inventoryContainer.innerHTML += vehicleCard;
+        });
+      }
+
+      function resetAllFilters() {
+        document
+          .querySelectorAll("select")
+          .forEach((sel) => (sel.selectedIndex = 0));
+        updateModelFilter("");
+        priceRangeEl.value = priceRangeEl.max;
+        priceMaxLabel.textContent = `$${priceRangeEl.max}`;
+        mileageRangeEl.value = mileageRangeEl.max;
+        mileageMaxLabel.textContent = `${(mileageRangeEl.max / 1000).toFixed(
+          0
+        )}k+`;
+        applyFiltersAndSort();
+      }
+
+      // --- LOGIN LOGIC ---
+      function handleLogin(e) {
+        e.preventDefault();
+        const username = loginForm.elements.username.value;
+        const password = loginForm.elements.password.value;
+
+        if (username === "Tonz606" && password === "Beast3303") {
+          window.location.href = "admin.html";
+        } else {
+          loginError.classList.remove("hidden");
+        }
+      }
+
+      // --- EVENT LISTENERS ---
+      document.addEventListener("DOMContentLoaded", () => {
+        populateFilters();
+        applyFiltersAndSort();
+        const filters = [
+          sortEl,
+          makeEl,
+          modelEl,
+          priceRangeEl,
+          mileageRangeEl,
+          bodyTypeEl,
+          transmissionEl,
+        ];
+        filters.forEach((el) =>
+          el.addEventListener("change", applyFiltersAndSort)
+        );
+        makeEl.addEventListener("change", (e) =>
+          updateModelFilter(e.target.value)
+        );
+        priceRangeEl.addEventListener(
+          "input",
+          (e) =>
+            (priceMaxLabel.textContent = `$${parseInt(
+              e.target.value,
+              10
+            ).toLocaleString()}`)
+        );
+        mileageRangeEl.addEventListener(
+          "input",
+          (e) =>
+            (mileageMaxLabel.textContent = `${(
+              parseInt(e.target.value, 10) / 1000
+            ).toFixed(0)}k`)
+        );
+        resetBtn.addEventListener("click", resetAllFilters);
+
+        // Login modal listeners
+        adminLoginBtn.addEventListener(
+          "click",
+          () => (loginModal.style.display = "flex")
+        );
+        cancelLoginBtn.addEventListener(
+          "click",
+          () => (loginModal.style.display = "none")
+        );
+        loginForm.addEventListener("submit", handleLogin);
+      });
+    </script>
+  </body>
 </html>
