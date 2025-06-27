@@ -15,7 +15,7 @@
       body { font-family: "Inter", sans-serif; }
       .back-link { color: #166534; }
       .detail-label { color: #4b5563; }
-      .price-tag-details { color: #16a34a; }
+      .price-tag-details, .price-tag-suggestion { color: #16a34a; }
       .part-card { border-left-width: 4px; border-left-color: #166534; }
       .cta-button {
           background-color: #166534;
@@ -43,6 +43,10 @@
         <div id="compatibility-tool" class="mt-8">
             <!-- Part compatibility tool will be injected here -->
         </div>
+
+        <div id="also-bought-section" class="mt-8">
+            <!-- "People also buy" section will be injected here -->
+        </div>
       </main>
     </div>
 
@@ -57,6 +61,19 @@
           { name: 'Brake Caliper (Front Right)', partNumber: 'BV6Z-2B120-A', fitment: [{make: 'Ford', model: 'Focus', years: [2012, 2013]},{make: 'Ford', model: 'Escape', years: [2013]}] },
           { name: 'V6 Engine Alternator', partNumber: '4801323AD', fitment: [{make: 'Jeep', model: 'Wrangler', years: [2007, 2008, 2009, 2010, 2011]},{make: 'Dodge', model: 'Grand Caravan', years: [2008, 2009, 2010]}]}
       ];
+      
+      /**
+       * Prepares the details page for a new vehicle and reloads the page.
+       * This is used by the "You might also like" suggestions.
+       */
+      window.viewSuggestion = function(vin) {
+        const allVehicles = JSON.parse(localStorage.getItem('vehicleInventory'));
+        const vehicle = allVehicles.find(v => v.vin === vin);
+        if (vehicle) {
+            localStorage.setItem('selectedVehicle', JSON.stringify(vehicle));
+            window.location.reload();
+        }
+      }
 
       document.addEventListener('DOMContentLoaded', () => {
         const selectedVehicle = JSON.parse(localStorage.getItem('selectedVehicle'));
@@ -64,10 +81,12 @@
         
         const detailsContainer = document.getElementById('details-container');
         const compatibilityContainer = document.getElementById('compatibility-tool');
+        const alsoBoughtContainer = document.getElementById('also-bought-section');
 
         if (selectedVehicle && fullInventory) {
             displayVehicleDetails(selectedVehicle, detailsContainer);
             displayCompatibilityTool(selectedVehicle, fullInventory, compatibilityContainer);
+            displayAlsoBought(selectedVehicle, fullInventory, alsoBoughtContainer);
         } else {
             detailsContainer.innerHTML = '<div class="p-8 text-center"><h2 class="text-2xl font-bold">No Vehicle Selected</h2><p class="mt-4 text-gray-600">Please go back to the inventory and select a vehicle to see its details.</p></div>';
         }
@@ -175,6 +194,47 @@
           compatiblePartsHTML += '</div>';
           
           container.innerHTML = compatiblePartsHTML;
+      }
+
+      function displayAlsoBought(currentVehicle, inventory, container) {
+          let alsoBoughtHTML = `<h2 class="text-2xl font-bold text-gray-800 mb-4">You Might Also Like</h2>`;
+          
+          // Get all other vehicles
+          const otherVehicles = inventory.filter(v => v.vin !== currentVehicle.vin);
+
+          // Shuffle the array to get random vehicles
+          for (let i = otherVehicles.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [otherVehicles[i], otherVehicles[j]] = [otherVehicles[j], otherVehicles[i]];
+          }
+
+          // Take the first two
+          const suggestions = otherVehicles.slice(0, 2);
+
+          if (suggestions.length === 0) {
+              return; // Don't display the section if there are no other cars
+          }
+
+          alsoBoughtHTML += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+          suggestions.forEach(vehicle => {
+              alsoBoughtHTML += `
+                <a href="#" onclick="viewSuggestion('${vehicle.vin}')" class="bg-white rounded-lg shadow-md overflow-hidden block hover:shadow-xl transition-shadow">
+                  <div class="relative">
+                      <img src="${vehicle.imageUrl}" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}" class="w-full h-40 object-cover">
+                      <div class="absolute top-0 right-0 bg-white bg-opacity-80 px-3 py-1 rounded-bl-lg">
+                          <p class="text-lg font-bold price-tag-suggestion">$${vehicle.price.toLocaleString()}</p>
+                      </div>
+                  </div>
+                  <div class="p-4">
+                    <h3 class="font-bold text-lg text-gray-800">${vehicle.year} ${vehicle.make} ${vehicle.model}</h3>
+                    <p class="text-sm text-gray-600">${vehicle.mileage.toLocaleString()} mi</p>
+                  </div>
+                </a>
+              `;
+          });
+          alsoBoughtHTML += '</div>';
+
+          container.innerHTML = alsoBoughtHTML;
       }
     </script>
   </body>
