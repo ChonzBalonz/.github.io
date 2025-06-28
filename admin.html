@@ -24,7 +24,7 @@
         background-color: #15803d;
       }
       .btn-secondary {
-        background-color: #4b5563;
+        background-color: #6b7280;
         color: white;
       }
       .btn-secondary:hover {
@@ -93,20 +93,29 @@
                 <th class="p-4 font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody id="inventory-table-body"></tbody>
+            <tbody id="inventory-table-body">
+              <tr>
+                <td colspan="5" class="p-8 text-center text-gray-500">
+                  Loading inventory...
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </main>
     </div>
 
+    <!-- Add/Edit Vehicle Modal -->
     <div
       id="vehicleModal"
-      class="fixed inset-0 modal-bg items-center justify-center hidden"
+      class="fixed inset-0 modal-bg items-center justify-center hidden z-50"
     >
-      <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl">
+      <div
+        class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl max-h-screen overflow-y-auto"
+      >
         <h3 id="modalTitle" class="text-2xl font-bold mb-6">Add New Vehicle</h3>
         <form id="vehicleForm">
-          <input type="hidden" id="vin" name="vin" />
+          <input type="hidden" id="docId" name="docId" />
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               class="p-2 border rounded-md"
@@ -131,6 +140,13 @@
             />
             <input
               class="p-2 border rounded-md"
+              type="text"
+              name="vin"
+              placeholder="VIN"
+              required
+            />
+            <input
+              class="p-2 border rounded-md"
               type="number"
               name="price"
               placeholder="Price"
@@ -138,7 +154,7 @@
             />
             <input
               class="p-2 border rounded-md"
-              type="text"
+              type="number"
               name="mileage"
               placeholder="Mileage"
               required
@@ -164,13 +180,22 @@
               placeholder="Image URL"
               required
             />
+            <input
+              class="p-2 border rounded-md"
+              type="text"
+              name="engine"
+              placeholder="Engine"
+              required
+            />
             <select class="p-2 border rounded-md" name="bodyType" required>
+              <option value="">Select Body Type</option>
               <option value="Sedan">Sedan</option>
               <option value="Coupe">Coupe</option>
               <option value="Truck">Truck</option>
               <option value="SUV">SUV</option>
             </select>
             <select class="p-2 border rounded-md" name="transmission" required>
+              <option value="">Select Transmission</option>
               <option value="Automatic">Automatic</option>
               <option value="Manual">Manual</option>
             </select>
@@ -200,7 +225,66 @@
       </div>
     </div>
 
-    <script>
+    <div
+      id="deleteModal"
+      class="fixed inset-0 modal-bg items-center justify-center hidden z-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">Confirm Deletion</h3>
+        <p class="text-gray-600 mb-6">
+          Are you sure you want to delete this vehicle? This action cannot be
+          undone.
+        </p>
+        <div class="flex justify-end gap-4">
+          <button
+            type="button"
+            id="cancelDeleteBtn"
+            class="btn-secondary px-6 py-2 rounded-lg font-semibold"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="confirmDeleteBtn"
+            class="btn-danger px-6 py-2 rounded-lg font-semibold"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        addDoc,
+        doc,
+        updateDoc,
+        deleteDoc,
+        orderBy,
+        query,
+      } from "https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDbxTfA9uA4ESD1IBqChnFg0s6K6_K39co",
+        authDomain: "junk-n-parts.firebaseapp.com",
+        projectId: "junk-n-parts",
+        storageBucket: "junk-n-parts.appspot.com",
+        messagingSenderId: "844185900957",
+        appId: "1:844185900957:web:694d47e95c090631c8c174",
+        measurementId: "G-QDE9SW5EW1",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const vehiclesCollection = collection(db, "vehicles");
+
       document.addEventListener("DOMContentLoaded", () => {
         const inventoryTableBody = document.getElementById(
           "inventory-table-body"
@@ -210,61 +294,30 @@
         const modalTitle = document.getElementById("modalTitle");
         const vehicleForm = document.getElementById("vehicleForm");
         const cancelBtn = document.getElementById("cancelBtn");
+        const deleteModal = document.getElementById("deleteModal");
+        const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+        const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+        let docIdToDelete = null;
 
-        // Load initial data or set to default
-        let vehicles = JSON.parse(localStorage.getItem("vehicleInventory")) || [
-          // This is your default data if nothing is in storage
-          {
-            year: 2008,
-            make: "Mitsubishi",
-            model: "Lancer",
-            vin: "JA3AU26U08U005457",
-            color: "Blue",
-            section: "Cars",
-            row: 12,
-            space: 9,
-            stockNumber: "1231-7714",
-            availableDate: "6/23/2025",
-            imageUrl:
-              "https://placehold.co/600x400/93c5fd/ffffff?text=2008+Lancer",
-            mileage: 145000,
-            engine: "2.0L I4",
-            transmission: "Automatic",
-            notes:
-              "Front-end damage. Engine and transmission are in good condition.",
-            price: 850,
-            bodyType: "Sedan",
-            added: "2025-06-20",
-          },
-          {
-            year: 2012,
-            make: "Ford",
-            model: "Focus",
-            vin: "1FADP3F28CL123456",
-            color: "Red",
-            section: "Cars",
-            row: 5,
-            space: 2,
-            stockNumber: "4589-1211",
-            availableDate: "6/28/2025",
-            imageUrl:
-              "https://placehold.co/600x400/f87171/ffffff?text=2012+Focus",
-            mileage: 98000,
-            engine: "2.0L I4",
-            transmission: "Automatic",
-            notes: "Minor body scratches. Runs and drives.",
-            price: 1500,
-            bodyType: "Sedan",
-            added: "2025-06-18",
-          },
-          // ... include all 10 default vehicles here if needed
-        ];
+        let localVehiclesCache = [];
 
-        const saveVehicles = () => {
-          localStorage.setItem("vehicleInventory", JSON.stringify(vehicles));
+        const fetchAndRenderVehicles = async () => {
+          try {
+            const q = query(vehiclesCollection, orderBy("year", "desc"));
+            const snapshot = await getDocs(q);
+            localVehiclesCache = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            renderTable(localVehiclesCache);
+          } catch (error) {
+            console.error("Error fetching vehicles: ", error);
+            inventoryTableBody.innerHTML =
+              '<tr><td colspan="5" class="p-8 text-center text-red-500">Error loading inventory. Check Firebase Security Rules.</td></tr>';
+          }
         };
 
-        const renderTable = () => {
+        const renderTable = (vehicles) => {
           inventoryTableBody.innerHTML = "";
           if (vehicles.length === 0) {
             inventoryTableBody.innerHTML =
@@ -273,7 +326,7 @@
           }
           vehicles.forEach((vehicle) => {
             const row = `
-                        <tr class="border-b">
+                        <tr class="border-b hover:bg-gray-50">
                             <td class="p-4 font-medium">${vehicle.year} ${
               vehicle.make
             } ${vehicle.model}</td>
@@ -283,11 +336,11 @@
                               vehicle.stockNumber
                             }</td>
                             <td class="p-4">
-                                <button class="edit-btn text-blue-600 hover:underline mr-4" data-vin="${
-                                  vehicle.vin
+                                <button class="edit-btn text-blue-600 hover:underline mr-4" data-id="${
+                                  vehicle.id
                                 }">Edit</button>
-                                <button class="delete-btn text-red-600 hover:underline" data-vin="${
-                                  vehicle.vin
+                                <button class="delete-btn text-red-600 hover:underline" data-id="${
+                                  vehicle.id
                                 }">Delete</button>
                             </td>
                         </tr>
@@ -296,25 +349,24 @@
           });
         };
 
-        const openModalForEdit = (vin) => {
-          const vehicle = vehicles.find((v) => v.vin === vin);
+        const openModalForEdit = (docId) => {
+          const vehicle = localVehiclesCache.find((v) => v.id === docId);
           if (!vehicle) return;
           modalTitle.textContent = "Edit Vehicle";
           vehicleForm.reset();
-          // Populate form
-          Object.keys(vehicle).forEach((key) => {
-            const input = vehicleForm.elements[key];
-            if (input) {
-              input.value = vehicle[key];
+          for (const key in vehicle) {
+            if (vehicleForm.elements[key]) {
+              vehicleForm.elements[key].value = vehicle[key];
             }
-          });
+          }
+          vehicleForm.elements.docId.value = docId;
           vehicleModal.style.display = "flex";
         };
 
         const openModalForAdd = () => {
           modalTitle.textContent = "Add New Vehicle";
           vehicleForm.reset();
-          vehicleForm.elements.vin.value = `VIN${Date.now()}`; // Generate a temporary unique VIN
+          vehicleForm.elements.docId.value = "";
           vehicleModal.style.display = "flex";
         };
 
@@ -322,56 +374,72 @@
           vehicleModal.style.display = "none";
         };
 
-        // Event Handlers
         addVehicleBtn.addEventListener("click", openModalForAdd);
         cancelBtn.addEventListener("click", closeModal);
 
-        vehicleForm.addEventListener("submit", (e) => {
+        vehicleForm.addEventListener("submit", async (e) => {
           e.preventDefault();
           const formData = new FormData(vehicleForm);
           const vehicleData = Object.fromEntries(formData.entries());
-          // Convert numeric fields from string
+          const docId = vehicleData.docId;
+          delete vehicleData.docId;
+
           vehicleData.year = parseInt(vehicleData.year, 10);
           vehicleData.price = parseInt(vehicleData.price, 10);
           vehicleData.mileage = parseInt(vehicleData.mileage, 10);
           vehicleData.added = new Date().toISOString().split("T")[0];
 
-          const existingIndex = vehicles.findIndex(
-            (v) => v.vin === vehicleData.vin
-          );
+          vehicleData.section = "Cars";
+          vehicleData.row = 0;
+          vehicleData.space = 0;
+          vehicleData.availableDate = new Date().toLocaleDateString();
 
-          if (existingIndex > -1) {
-            // Editing
-            vehicles[existingIndex] = {
-              ...vehicles[existingIndex],
-              ...vehicleData,
-            };
-          } else {
-            // Adding
-            vehicles.push(vehicleData);
+          try {
+            if (docId) {
+              const docRef = doc(db, "vehicles", docId);
+              await updateDoc(docRef, vehicleData);
+            } else {
+              await addDoc(vehiclesCollection, vehicleData);
+            }
+            await fetchAndRenderVehicles();
+            closeModal();
+          } catch (error) {
+            console.error("Error saving vehicle: ", error);
+            alert("Failed to save vehicle. Check console.");
           }
-
-          saveVehicles();
-          renderTable();
-          closeModal();
         });
 
         inventoryTableBody.addEventListener("click", (e) => {
           if (e.target.classList.contains("edit-btn")) {
-            openModalForEdit(e.target.dataset.vin);
+            openModalForEdit(e.target.dataset.id);
           }
           if (e.target.classList.contains("delete-btn")) {
-            if (confirm("Are you sure you want to delete this vehicle?")) {
-              const vinToDelete = e.target.dataset.vin;
-              vehicles = vehicles.filter((v) => v.vin !== vinToDelete);
-              saveVehicles();
-              renderTable();
-            }
+            docIdToDelete = e.target.dataset.id;
+            deleteModal.style.display = "flex";
           }
         });
 
-        // Initial render
-        renderTable();
+        cancelDeleteBtn.addEventListener("click", () => {
+          deleteModal.style.display = "none";
+          docIdToDelete = null;
+        });
+
+        confirmDeleteBtn.addEventListener("click", async () => {
+          if (docIdToDelete) {
+            try {
+              const docRef = doc(db, "vehicles", docIdToDelete);
+              await deleteDoc(docRef);
+              await fetchAndRenderVehicles();
+            } catch (error) {
+              console.error("Error deleting vehicle: ", error);
+              alert("Failed to delete vehicle.");
+            }
+          }
+          deleteModal.style.display = "none";
+          docIdToDelete = null;
+        });
+
+        fetchAndRenderVehicles();
       });
     </script>
   </body>

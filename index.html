@@ -112,12 +112,22 @@
         <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
           Junk 'n' Deals
         </h1>
-        <nav class="flex items-center space-x-4 md:space-x-6">
-          <a
-            href="swipe.html"
-            class="font-semibold text-gray-600 hover:text-green-800 transition md:hidden"
-            >✨ Swipe View</a
-          >
+        <nav class="flex items-center space-x-6">
+          <div class="flex items-center space-x-2 location-bar">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 0 24 24"
+              width="20px"
+              class="fill-current text-gray-500"
+            >
+              <path d="M0 0h24v24H0V0z" fill="none" />
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+              />
+            </svg>
+            <span class="font-semibold text-gray-700">CENTRAL</span>
+          </div>
           <button
             id="adminLoginBtn"
             class="font-semibold text-gray-600 hover:text-green-800 transition"
@@ -304,7 +314,8 @@
     </div>
 
     <script>
-      const vehicles = [
+      // Fallback data if localStorage is empty
+      const defaultVehicles = [
         {
           year: 2008,
           make: "Mitsubishi",
@@ -517,6 +528,13 @@
         },
       ];
 
+      // Load vehicles from localStorage, or use default and save to localStorage
+      let vehicles =
+        JSON.parse(localStorage.getItem("vehicleInventory")) || defaultVehicles;
+      if (!localStorage.getItem("vehicleInventory")) {
+        localStorage.setItem("vehicleInventory", JSON.stringify(vehicles));
+      }
+
       // DOM Elements
       const inventoryContainer = document.getElementById("vehicle-inventory");
       const noResultsEl = document.getElementById("no-results");
@@ -545,6 +563,7 @@
         const vehicle = vehicles.find((v) => v.vin === vin);
         if (vehicle) {
           localStorage.setItem("selectedVehicle", JSON.stringify(vehicle));
+          // Pass the current state of the inventory for cross-referencing
           localStorage.setItem("vehicleInventory", JSON.stringify(vehicles));
           window.location.href = "details.html";
         }
@@ -568,14 +587,14 @@
             .map((t) => `<option value="${t}">${t}</option>`)
             .join("");
         const prices = vehicles.map((v) => v.price);
-        priceRangeEl.min = Math.min(...prices);
-        priceRangeEl.max = Math.max(...prices);
+        priceRangeEl.min = Math.min(...prices) || 0;
+        priceRangeEl.max = Math.max(...prices) || 5000;
         priceRangeEl.value = priceRangeEl.max;
         priceMinLabel.textContent = `$${priceRangeEl.min}`;
         priceMaxLabel.textContent = `$${priceRangeEl.max}`;
         const mileages = vehicles.map((v) => v.mileage);
-        mileageRangeEl.min = Math.min(...mileages);
-        mileageRangeEl.max = Math.max(...mileages);
+        mileageRangeEl.min = Math.min(...mileages) || 0;
+        mileageRangeEl.max = Math.max(...mileages) || 250000;
         mileageRangeEl.value = mileageRangeEl.max;
         mileageMinLabel.textContent = `${(mileageRangeEl.min / 1000).toFixed(
           0
