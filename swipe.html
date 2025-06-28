@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>Junk 'n' Deals - Swipe View</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Hammer.js for touch gestures -->
+    <script src="https://unpkg.com/hammerjs@2.0.8/hammer.min.js"></script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .card-stack {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        perspective: 1000px;
+      }
+      .car-card {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        cursor: grab;
+        will-change: transform;
+        transition: transform 0.3s ease-in-out, opacity 0.3s;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .car-card.dragging {
+        transition: none;
+      }
+      .card-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-size: cover;
+        background-position: center;
+      }
+      .card-gradient {
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.85) 0%,
+          rgba(0, 0, 0, 0) 50%
+        );
+      }
+      .choice-badge {
+        position: absolute;
+        top: 40px;
+        font-size: 2rem;
+        font-weight: 800;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.75rem;
+        border: 4px solid;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .like-badge {
+        color: #16a34a; /* green-500 */
+        border-color: #16a34a;
+        transform: rotate(-20deg);
+        right: 20px;
+      }
+      .nope-badge {
+        color: #ef4444; /* red-500 */
+        border-color: #ef4444;
+        transform: rotate(20deg);
+        left: 20px;
+      }
+      .car-card.like .like-badge,
+      .car-card.nope .nope-badge {
+        opacity: 1;
+      }
+      .action-button {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background-color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease-in-out;
+      }
+      .action-button:active {
+        transform: scale(0.9);
+      }
+      .info-button-details {
+        transition: all 0.3s ease;
+      }
+      .details-pane {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-in-out;
+      }
+      .details-pane.open {
+        max-height: 500px; /* Adjust as needed */
+      }
+      .details-link-saved {
+        color: #166534;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-200 overflow-hidden">
+    <!-- Main App Container -->
+    <div id="app" class="h-screen w-screen flex flex-col">
+      <!-- Header -->
+      <header
+        class="flex justify-between items-center p-4 bg-white shadow-md z-20"
+      >
+        <h1 class="text-xl font-bold text-green-800">Junk 'n' Deals</h1>
+        <div class="flex items-center space-x-4">
+          <button
+            id="viewSavedBtn"
+            class="font-semibold text-gray-700 hover:text-green-800 transition"
+          >
+            Saved (<span id="saved-count">0</span>)
+          </button>
+          <button id="filterBtn">
+            <svg
+              class="w-6 h-6 text-gray-700"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6V4m0 16v-2m0-10v2M6 12H4m16 0h-2m-10 0h2m-2 4h2m-2-8h2m8 4h2"
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Card Stack -->
+      <main class="flex-grow relative p-4">
+        <div id="card-stack" class="card-stack">
+          <!-- Cards will be injected here -->
+        </div>
+        <div
+          id="no-more-cars"
+          class="hidden h-full w-full flex-col items-center justify-center text-center"
+        >
+          <p class="text-2xl font-bold text-gray-700">That's All For Now!</p>
+          <p class="text-gray-500 mt-2">
+            You've seen all the cars matching your filters.
+          </p>
+          <button
+            id="resetFromEndBtn"
+            class="mt-6 bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg"
+          >
+            Reset and Start Over
+          </button>
+        </div>
+      </main>
+
+      <!-- Action Buttons -->
+      <footer class="flex justify-center items-center p-4 space-x-8 z-20">
+        <button class="action-button" data-action="nope">
+          <svg
+            class="w-8 h-8 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <button class="action-button" data-action="like">
+          <svg
+            class="w-9 h-9 text-green-500"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </footer>
+    </div>
+
+    <!-- Filter Modal -->
+    <div
+      id="filterModal"
+      class="fixed inset-0 bg-gray-800 bg-opacity-75 z-50 hidden flex items-center justify-center"
+    >
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-md m-4 p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Filters</h2>
+        <div class="space-y-4">
+          <div>
+            <label
+              for="filter-make"
+              class="block text-sm font-medium text-gray-700"
+              >Make</label
+            ><select
+              id="filter-make"
+              class="w-full mt-1 p-2 border rounded-md"
+            ></select>
+          </div>
+          <div>
+            <label
+              for="filter-price"
+              class="block text-sm font-medium text-gray-700"
+              >Max Price: <span id="filter-price-label"></span></label
+            ><input
+              type="range"
+              id="filter-price"
+              min="500"
+              max="3000"
+              step="100"
+              class="w-full mt-1"
+            />
+          </div>
+        </div>
+        <div class="flex justify-end gap-4 mt-8">
+          <button
+            id="closeFilterBtn"
+            class="bg-gray-200 text-gray-800 font-semibold px-6 py-2 rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            id="applyFilterBtn"
+            class="bg-green-700 text-white font-semibold px-6 py-2 rounded-lg"
+          >
+            Apply
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Saved Cars Modal -->
+    <div
+      id="savedModal"
+      class="fixed inset-0 bg-gray-800 bg-opacity-75 z-50 hidden flex items-center justify-center"
+    >
+      <div
+        class="bg-white rounded-lg shadow-xl w-full max-w-md m-4 p-6 h-3/4 flex flex-col"
+      >
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Your Saved Cars</h2>
+        <div id="saved-list" class="flex-grow overflow-y-auto space-y-3">
+          <!-- Saved cars list will be injected here -->
+        </div>
+        <div class="flex justify-end mt-6">
+          <button
+            id="closeSavedBtn"
+            class="bg-gray-200 text-gray-800 font-semibold px-6 py-2 rounded-lg"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let fullVehicleInventory = JSON.parse(
+        localStorage.getItem("vehicleInventory")
+      ) || [
+        {
+          year: 2008,
+          make: "Mitsubishi",
+          model: "Lancer",
+          vin: "JA3AU26U08U005457",
+          color: "Blue",
+          imageUrl:
+            "https://placehold.co/600x800/93c5fd/ffffff?text=2008+Lancer",
+          mileage: 145000,
+          notes:
+            "Front-end damage. Engine and transmission are in good condition.",
+          price: 850,
+          bodyType: "Sedan",
+        },
+        {
+          year: 2012,
+          make: "Ford",
+          model: "Focus",
+          vin: "1FADP3F28CL123456",
+          color: "Red",
+          imageUrl:
+            "https://placehold.co/600x800/f87171/ffffff?text=2012+Focus",
+          mileage: 98000,
+          notes: "Minor body scratches. Runs and drives.",
+          price: 1500,
+          bodyType: "Sedan",
+        },
+        {
+          year: 2005,
+          make: "Honda",
+          model: "Civic",
+          vin: "2HGEJ76595H567890",
+          color: "Silver",
+          imageUrl:
+            "https://placehold.co/600x800/d1d5db/ffffff?text=2005+Civic",
+          mileage: 180000,
+          notes: "Clean interior. Good for parts.",
+          price: 600,
+          bodyType: "Coupe",
+        },
+        {
+          year: 2015,
+          make: "Chevrolet",
+          model: "Cruze",
+          vin: "1G1PC5SB3F7112233",
+          color: "Black",
+          imageUrl:
+            "https://placehold.co/600x800/404040/ffffff?text=2015+Cruze",
+          mileage: 110000,
+          notes: "Side panel damage. Interior is in great shape.",
+          price: 1800,
+          bodyType: "Sedan",
+        },
+        {
+          year: 2009,
+          make: "Toyota",
+          model: "Camry",
+          vin: "4T1BE46K89U334455",
+          color: "White",
+          imageUrl:
+            "https://placehold.co/600x800/f3f4f6/000000?text=2009+Camry",
+          mileage: 210000,
+          notes: "High mileage but runs well. Some rust on quarter panels.",
+          price: 1250,
+          bodyType: "Sedan",
+        },
+        {
+          year: 2011,
+          make: "Nissan",
+          model: "Altima",
+          vin: "1N4AL2AP5BC667788",
+          color: "Gray",
+          imageUrl:
+            "https://placehold.co/600x800/9ca3af/ffffff?text=2011+Altima",
+          mileage: 135000,
+          notes: "Transmission issues. Good for body parts and interior.",
+          price: 750,
+          bodyType: "Sedan",
+        },
+        {
+          year: 2007,
+          make: "Dodge",
+          model: "Ram 1500",
+          vin: "3D7HU18N57G998877",
+          color: "Maroon",
+          imageUrl: "https://placehold.co/600x800/881337/ffffff?text=2007+Ram",
+          mileage: 195000,
+          notes: "Solid frame and body. Engine needs work.",
+          price: 2200,
+          bodyType: "Truck",
+        },
+        {
+          year: 2014,
+          make: "Hyundai",
+          model: "Elantra",
+          vin: "KMHDH4AE4EU112233",
+          color: "Silver",
+          imageUrl:
+            "https://placehold.co/600x800/d1d5db/ffffff?text=2014+Elantra",
+          mileage: 85000,
+          notes: "Rear bumper damage. Low mileage engine.",
+          price: 1650,
+          bodyType: "Sedan",
+        },
+        {
+          year: 2010,
+          make: "Jeep",
+          model: "Wrangler",
+          vin: "1J4FA24S4AP445566",
+          color: "Green",
+          imageUrl:
+            "https://placehold.co/600x800/4d7c0f/ffffff?text=2010+Wrangler",
+          mileage: 120000,
+          notes: "Frame has some rust. Good for doors, top, and axles.",
+          price: 2800,
+          bodyType: "SUV",
+        },
+        {
+          year: 2006,
+          make: "Ford",
+          model: "Explorer",
+          vin: "1FM5U28E56UA77889",
+          color: "Blue",
+          imageUrl:
+            "https://placehold.co/600x800/3b82f6/ffffff?text=2006+Explorer",
+          mileage: 160000,
+          notes: "Intact interior. Good glass and body panels.",
+          price: 950,
+          bodyType: "SUV",
+        },
+      ];
+
+      let currentStack = [];
+      let currentIndex = 0;
+      let savedCars = JSON.parse(localStorage.getItem("savedCars")) || [];
+
+      const stackContainer = document.getElementById("card-stack");
+      const noMoreCarsEl = document.getElementById("no-more-cars");
+
+      // --- Card Creation and Logic ---
+      function createCard(vehicle) {
+        const card = document.createElement("div");
+        card.classList.add("car-card", "rounded-2xl", "bg-white", "shadow-2xl");
+        card.innerHTML = `
+                <div class="card-image rounded-2xl" style="background-image: url('${
+                  vehicle.imageUrl
+                }')"></div>
+                <div class="card-gradient absolute inset-0 rounded-2xl"></div>
+                <div class="like-badge choice-badge">Like</div>
+                <div class="nope-badge choice-badge">Nope</div>
+                <div class="relative p-6 flex-grow flex flex-col justify-end text-white">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-3xl font-bold">${vehicle.year} ${
+          vehicle.make
+        } ${vehicle.model}</h2>
+                        <p class="text-3xl font-bold">$${vehicle.price.toLocaleString()}</p>
+                    </div>
+                    <p class="text-lg">${vehicle.mileage.toLocaleString()} mi</p>
+                    <div class="details-pane mt-2">
+                        <p class="font-semibold mt-2">Notes:</p>
+                        <p>${vehicle.notes}</p>
+                    </div>
+                </div>
+                <button class="info-button-details self-center mb-4 p-2">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </button>
+            `;
+
+        card
+          .querySelector(".info-button-details")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            card.querySelector(".details-pane").classList.toggle("open");
+          });
+
+        return card;
+      }
+
+      function renderStack() {
+        stackContainer.innerHTML = "";
+        noMoreCarsEl.classList.add("hidden");
+        currentIndex = 0;
+
+        if (currentStack.length === 0) {
+          noMoreCarsEl.classList.remove("hidden");
+          return;
+        }
+
+        currentStack.forEach((vehicle, index) => {
+          const card = createCard(vehicle);
+          card.style.zIndex = currentStack.length - index;
+          card.style.transform = `translateY(${Math.min(
+            index * 10,
+            30
+          )}px) scale(${1 - index * 0.05})`;
+          card.style.opacity = index > 2 ? 0 : 1;
+          stackContainer.appendChild(card);
+        });
+
+        if (stackContainer.children.length > 0) {
+          initializeHammer(stackContainer.children[0]);
+        }
+      }
+
+      function initializeHammer(element) {
+        const hammer = new Hammer(element);
+        element.classList.add("active");
+
+        hammer.on("pan", (e) => {
+          element.classList.add("dragging");
+          const rotation = e.deltaX * 0.05;
+          element.style.transform = `translateX(${e.deltaX}px) rotate(${rotation}deg)`;
+
+          element.classList.toggle("like", e.deltaX > 20);
+          element.classList.toggle("nope", e.deltaX < -20);
+        });
+
+        hammer.on("panend", (e) => {
+          element.classList.remove("dragging");
+          const threshold = 100;
+          if (Math.abs(e.deltaX) > threshold) {
+            processSwipe(e.deltaX > 0);
+          } else {
+            element.style.transform = "";
+            element.classList.remove("like", "nope");
+          }
+        });
+      }
+
+      function processSwipe(isLike) {
+        if (currentIndex >= currentStack.length) return;
+        const card = stackContainer.children[0];
+        const direction = isLike ? 1 : -1;
+        card.style.transform = `translateX(${direction * 1000}px) rotate(${
+          direction * 30
+        }deg)`;
+        card.style.opacity = 0;
+
+        if (isLike) {
+          const likedCar = currentStack[currentIndex];
+          if (!savedCars.some((c) => c.vin === likedCar.vin)) {
+            savedCars.push(likedCar);
+            localStorage.setItem("savedCars", JSON.stringify(savedCars));
+            updateSavedCount();
+          }
+        }
+
+        currentIndex++;
+        if (currentIndex < currentStack.length) {
+          initializeHammer(stackContainer.children[1]);
+        } else {
+          noMoreCarsEl.classList.remove("hidden");
+        }
+      }
+
+      // --- Filters and Modals ---
+      function setupFilters() {
+        const makeFilter = document.getElementById("filter-make");
+        const priceFilter = document.getElementById("filter-price");
+        const priceLabel = document.getElementById("filter-price-label");
+
+        const makes = [
+          ...new Set(fullVehicleInventory.map((v) => v.make)),
+        ].sort();
+        makeFilter.innerHTML =
+          '<option value="">All Makes</option>' +
+          makes.map((m) => `<option value="${m}">${m}</option>`).join("");
+
+        const prices = fullVehicleInventory.map((v) => v.price);
+        priceFilter.min = Math.min(...prices);
+        priceFilter.max = Math.max(...prices);
+        priceFilter.value = priceFilter.max;
+        priceLabel.textContent = `$${parseInt(
+          priceFilter.max
+        ).toLocaleString()}`;
+
+        priceFilter.addEventListener("input", (e) => {
+          priceLabel.textContent = `$${parseInt(
+            e.target.value
+          ).toLocaleString()}`;
+        });
+      }
+
+      function applyFilters() {
+        const make = document.getElementById("filter-make").value;
+        const maxPrice = parseInt(
+          document.getElementById("filter-price").value,
+          10
+        );
+
+        currentStack = fullVehicleInventory.filter((v) => {
+          if (make && v.make !== make) return false;
+          if (v.price > maxPrice) return false;
+          return true;
+        });
+
+        currentStack.sort(() => Math.random() - 0.5);
+
+        renderStack();
+      }
+
+      function updateSavedCount() {
+        document.getElementById("saved-count").textContent = savedCars.length;
+      }
+
+      window.viewSavedDetails = function (vin) {
+        const vehicle = fullVehicleInventory.find((v) => v.vin === vin);
+        if (vehicle) {
+          localStorage.setItem("selectedVehicle", JSON.stringify(vehicle));
+          localStorage.setItem(
+            "vehicleInventory",
+            JSON.stringify(fullVehicleInventory)
+          );
+          window.location.href = "details.html";
+        }
+      };
+
+      function renderSavedList() {
+        const listEl = document.getElementById("saved-list");
+        listEl.innerHTML = "";
+        if (savedCars.length === 0) {
+          listEl.innerHTML =
+            '<p class="text-center text-gray-500">You haven\'t saved any cars yet.</p>';
+          return;
+        }
+        savedCars.forEach((car) => {
+          const carEl = document.createElement("div");
+          carEl.className = "flex items-center p-2 bg-gray-100 rounded-md";
+          carEl.innerHTML = `
+                    <img src="${
+                      car.imageUrl
+                    }" class="w-16 h-16 rounded-md object-cover mr-4">
+                    <div class="flex-grow">
+                        <p class="font-semibold">${car.year} ${car.make} ${
+            car.model
+          }</p>
+                        <p class="text-sm text-gray-600">$${car.price.toLocaleString()}</p>
+                    </div>
+                    <a href="#" onclick="viewSavedDetails('${
+                      car.vin
+                    }')" class="details-link-saved hover:underline">Details &rarr;</a>
+                `;
+          listEl.appendChild(carEl);
+        });
+      }
+
+      // --- Event Listeners ---
+      document
+        .getElementById("filterBtn")
+        .addEventListener(
+          "click",
+          () => (document.getElementById("filterModal").style.display = "flex")
+        );
+      document
+        .getElementById("closeFilterBtn")
+        .addEventListener(
+          "click",
+          () => (document.getElementById("filterModal").style.display = "none")
+        );
+      document
+        .getElementById("applyFilterBtn")
+        .addEventListener("click", () => {
+          applyFilters();
+          document.getElementById("filterModal").style.display = "none";
+        });
+
+      document.getElementById("viewSavedBtn").addEventListener("click", () => {
+        renderSavedList();
+        document.getElementById("savedModal").style.display = "flex";
+      });
+      document
+        .getElementById("closeSavedBtn")
+        .addEventListener(
+          "click",
+          () => (document.getElementById("savedModal").style.display = "none")
+        );
+
+      document.querySelectorAll(".action-button").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const action = e.currentTarget.dataset.action;
+          processSwipe(action === "like");
+        });
+      });
+
+      document
+        .getElementById("resetFromEndBtn")
+        .addEventListener("click", () => {
+          applyFilters();
+        });
+
+      // --- Initial Load ---
+      setupFilters();
+      applyFilters();
+      updateSavedCount();
+    </script>
+  </body>
+</html>
