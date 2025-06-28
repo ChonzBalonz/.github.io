@@ -11,78 +11,41 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <!-- Swiper.js CSS -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
     />
     <style>
-      body {
-        font-family: "Inter", sans-serif;
-      }
-      .search-btn {
-        background-color: #fde047;
-      }
-      .vehicle-title,
-      .details-link {
-        color: #166534;
-      }
-      .location-bar svg {
-        fill: #4b5563;
-      }
+      body { font-family: "Inter", sans-serif; }
+      .search-btn { background-color: #fde047; }
+      .vehicle-title, .details-link { color: #166534; }
+      .location-bar svg { fill: #4b5563; }
       .details-button {
         background-color: #166534;
         color: white;
         transition: background-color 0.3s;
       }
-      .details-button:hover {
-        background-color: #15803d;
+      .details-button:hover { background-color: #15803d; }
+      .price-tag { color: #16a34a; }
+      .filter-label { font-weight: 500; color: #4b5563; }
+      .filter-select, .filter-input {
+          border-color: #d1d5db;
+          transition: border-color 0.2s, box-shadow 0.2s;
       }
-      .price-tag {
-        color: #16a34a;
+      .filter-select:focus, .filter-input:focus {
+          border-color: #166534;
+          box-shadow: 0 0 0 2px rgba(22, 101, 52, 0.2);
+          outline: none;
       }
-      .filter-label {
-        font-weight: 500;
-        color: #4b5563;
-      }
-      .filter-select,
-      .filter-input {
-        border-color: #d1d5db;
-        transition: border-color 0.2s, box-shadow 0.2s;
-      }
-      .filter-select:focus,
-      .filter-input:focus {
-        border-color: #166534;
-        box-shadow: 0 0 0 2px rgba(22, 101, 52, 0.2);
-        outline: none;
-      }
-      .modal-bg {
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-      .btn-primary {
-        background-color: #166534;
-        color: white;
-      }
-      .btn-primary:hover {
-        background-color: #15803d;
-      }
-      .btn-secondary {
-        background-color: #6b7280;
-        color: white;
-      }
-      .btn-secondary:hover {
-        background-color: #4b5563;
-      }
-      .breadcrumb-link {
-        color: #166534;
-      }
-      .breadcrumb-current {
-        color: #374151;
-        font-weight: 500;
-      }
-      .breadcrumb-separator {
-        color: #9ca3af;
-        margin: 0 0.5rem;
-      }
+      .modal-bg { background-color: rgba(0,0,0,0.5); }
+      .btn-primary { background-color: #166534; color: white; }
+      .btn-primary:hover { background-color: #15803d; }
+      .btn-secondary { background-color: #6b7280; color: white; }
+      .btn-secondary:hover { background-color: #4b5563; }
+      .breadcrumb-link { color: #166534; }
+      .breadcrumb-current { color: #374151; font-weight: 500; }
+      .breadcrumb-separator { color: #9ca3af; margin: 0 0.5rem; }
 
       /* Swiper Styles for Mobile */
       .swiper-container {
@@ -99,682 +62,288 @@
           grid-template-columns: repeat(2, 1fr);
         }
       }
-      @media (min-width: 1280px) {
+       @media (min-width: 1280px) {
         #vehicle-inventory.swiper-initialized .swiper-wrapper {
           grid-template-columns: repeat(3, 1fr);
         }
       }
+
     </style>
   </head>
   <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto">
+      <!-- Header -->
       <header class="bg-white p-4 shadow-sm flex items-center justify-between">
-        <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
-          Junk 'n' Deals
-        </h1>
-        <nav class="flex items-center space-x-6">
-          <div class="flex items-center space-x-2 location-bar">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="20px"
-              viewBox="0 0 24 24"
-              width="20px"
-              class="fill-current text-gray-500"
-            >
-              <path d="M0 0h24v24H0V0z" fill="none" />
-              <path
-                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-              />
-            </svg>
-            <span class="font-semibold text-gray-700">CENTRAL</span>
-          </div>
-          <button
-            id="adminLoginBtn"
-            class="font-semibold text-gray-600 hover:text-green-800 transition"
-          >
-            Admin Login
-          </button>
-        </nav>
+          <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Junk 'n' Deals</h1>
+          <nav class="flex items-center space-x-6">
+            <div class="flex items-center space-x-2 location-bar">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" class="fill-current text-gray-500"><path d="M0 0h24v24H0V0z" fill="none" /><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <span class="font-semibold text-gray-700">CENTRAL</span>
+            </div>
+            <button id="adminLoginBtn" class="font-semibold text-gray-600 hover:text-green-800 transition">Admin Login</button>
+          </nav>
       </header>
-
+      
+      <!-- Breadcrumb Navigation -->
       <div class="bg-gray-50 border-b border-gray-200 px-4 py-2 text-sm">
-        <span class="breadcrumb-current">Home</span>
+          <span class="breadcrumb-current">Home</span>
       </div>
 
       <main class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Filters & Sorting Sidebar -->
         <aside class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md h-fit">
-          <h2 class="text-xl font-bold text-gray-800 mb-6">
-            Filters & Sorting
-          </h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Filters & Sorting</h2>
+            
+            <div class="mb-6"><label for="sort" class="block text-sm filter-label mb-1">Sort By</label><select id="sort" class="w-full p-2 rounded-md border filter-select"><option value="recent">Recently Added</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="year-desc">Year: New to Old</option><option value="year-asc">Year: Old to New</option></select></div>
+            <div class="mb-4"><label for="make" class="block text-sm filter-label mb-1">Make</label><select id="make" class="w-full p-2 rounded-md border filter-select"></select></div>
+            <div class="mb-6"><label for="model" class="block text-sm filter-label mb-1">Model</label><select id="model" class="w-full p-2 rounded-md border filter-select"></select></div>
+            <div class="mb-6"><label class="block text-sm filter-label mb-1">Price Range</label><div class="flex items-center justify-between text-sm text-gray-600"><span id="priceMin-label">$0</span><span id="priceMax-label">$5000</span></div><input type="range" id="priceRange" min="0" max="5000" step="100" class="w-full mt-1"></div>
+            <div class="mb-6"><label class="block text-sm filter-label mb-1">Mileage</label><div class="flex items-center justify-between text-sm text-gray-600"><span id="mileageMin-label">0k</span><span id="mileageMax-label">250k+</span></div><input type="range" id="mileageRange" min="0" max="250000" step="5000" class="w-full mt-1"></div>
+            <div class="mb-6"><label for="bodyType" class="block text-sm filter-label mb-1">Body Type</label><select id="bodyType" class="w-full p-2 rounded-md border filter-select"></select></div>
+            <div class="mb-6"><label for="transmission" class="block text-sm filter-label mb-1">Transmission</label><select id="transmission" class="w-full p-2 rounded-md border filter-select"></select></div>
+            <button id="resetFilters" class="w-full p-3 rounded-lg bg-gray-600 text-white font-semibold hover:bg-gray-700 transition">Reset Filters</button>
 
-          <div class="mb-6">
-            <label for="sort" class="block text-sm filter-label mb-1"
-              >Sort By</label
-            ><select
-              id="sort"
-              class="w-full p-2 rounded-md border filter-select"
-            >
-              <option value="recent">Recently Added</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="year-desc">Year: New to Old</option>
-              <option value="year-asc">Year: Old to New</option>
-            </select>
-          </div>
-          <div class="mb-4">
-            <label for="make" class="block text-sm filter-label mb-1"
-              >Make</label
-            ><select
-              id="make"
-              class="w-full p-2 rounded-md border filter-select"
-            ></select>
-          </div>
-          <div class="mb-6">
-            <label for="model" class="block text-sm filter-label mb-1"
-              >Model</label
-            ><select
-              id="model"
-              class="w-full p-2 rounded-md border filter-select"
-            ></select>
-          </div>
-          <div class="mb-6">
-            <label class="block text-sm filter-label mb-1">Price Range</label>
-            <div
-              class="flex items-center justify-between text-sm text-gray-600"
-            >
-              <span id="priceMin-label">$0</span
-              ><span id="priceMax-label">$5000</span>
+            <!-- Contact Info Box -->
+            <div class="mt-8 border-t pt-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Have Questions?</h3>
+                <div class="space-y-4">
+                    <a href="tel:630-540-6506" class="flex items-center space-x-3 text-gray-700 hover:text-green-800 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 group-hover:text-green-700 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                        <span class="font-semibold">Call Me</span>
+                    </a>
+                    <a href="mailto:anthony3303@outlook.com" class="flex items-center space-x-3 text-gray-700 hover:text-green-800 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 group-hover:text-green-700 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        <span class="font-semibold">Email Me</span>
+                    </a>
+                    <a href="https://www.instagram.com/tonz606" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 text-gray-700 hover:text-green-800 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 group-hover:text-green-700 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        <span class="font-semibold">DM on Instagram</span>
+                    </a>
+                </div>
             </div>
-            <input
-              type="range"
-              id="priceRange"
-              min="0"
-              max="5000"
-              step="100"
-              class="w-full mt-1"
-            />
-          </div>
-          <div class="mb-6">
-            <label class="block text-sm filter-label mb-1">Mileage</label>
-            <div
-              class="flex items-center justify-between text-sm text-gray-600"
-            >
-              <span id="mileageMin-label">0k</span
-              ><span id="mileageMax-label">250k+</span>
-            </div>
-            <input
-              type="range"
-              id="mileageRange"
-              min="0"
-              max="250000"
-              step="5000"
-              class="w-full mt-1"
-            />
-          </div>
-          <div class="mb-6">
-            <label for="bodyType" class="block text-sm filter-label mb-1"
-              >Body Type</label
-            ><select
-              id="bodyType"
-              class="w-full p-2 rounded-md border filter-select"
-            ></select>
-          </div>
-          <div class="mb-6">
-            <label for="transmission" class="block text-sm filter-label mb-1"
-              >Transmission</label
-            ><select
-              id="transmission"
-              class="w-full p-2 rounded-md border filter-select"
-            ></select>
-          </div>
-          <button
-            id="resetFilters"
-            class="w-full p-3 rounded-lg bg-gray-600 text-white font-semibold hover:bg-gray-700 transition"
-          >
-            Reset Filters
-          </button>
+
         </aside>
 
+        <!-- Inventory Display -->
         <div class="lg:col-span-3">
-          <h1 class="text-2xl font-bold text-gray-800 mb-6">
-            VEHICLE INVENTORY (<span id="vehicle-count">0</span>)
-          </h1>
-          <div id="vehicle-inventory" class="swiper-container">
-            <div class="swiper-wrapper"></div>
-            <div class="swiper-pagination"></div>
-          </div>
-          <div
-            id="no-results"
-            class="hidden text-center py-20 bg-white rounded-lg shadow-md"
-          >
-            <p class="text-gray-500 text-xl font-semibold">
-              No vehicles match your criteria.
-            </p>
-            <p class="text-gray-400 mt-2">Try adjusting your filters.</p>
-          </div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">VEHICLE INVENTORY (<span id="vehicle-count">0</span>)</h1>
+            <!-- Swiper container -->
+            <div id="vehicle-inventory" class="swiper-container">
+                <div class="swiper-wrapper">
+                    <!-- Vehicle cards will be injected here -->
+                </div>
+                <!-- Add Pagination -->
+                <div class="swiper-pagination"></div>
+            </div>
+            <div id="no-results" class="hidden text-center py-20 bg-white rounded-lg shadow-md">
+                <p class="text-gray-500 text-xl font-semibold">No vehicles match your criteria.</p>
+                <p class="text-gray-400 mt-2">Try adjusting your filters.</p>
+            </div>
         </div>
       </main>
     </div>
 
-    <div
-      id="loginModal"
-      class="fixed inset-0 modal-bg items-center justify-center hidden"
-    >
-      <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm">
-        <h3 class="text-2xl font-bold mb-6 text-center">Admin Login</h3>
-        <form id="loginForm">
-          <div class="space-y-4">
-            <input
-              class="w-full p-3 border rounded-md"
-              type="text"
-              id="username"
-              placeholder="Username"
-              required
-            /><input
-              class="w-full p-3 border rounded-md"
-              type="password"
-              id="password"
-              placeholder="Password"
-              required
-            />
-          </div>
-          <p
-            id="loginError"
-            class="text-red-500 text-sm text-center mt-4 hidden"
-          >
-            Invalid username or password.
-          </p>
-          <div class="flex justify-end gap-4 mt-6">
-            <button
-              type="button"
-              id="cancelLoginBtn"
-              class="btn-secondary px-6 py-2 rounded-lg font-semibold"
-            >
-              Cancel</button
-            ><button
-              type="submit"
-              class="btn-primary px-6 py-2 rounded-lg font-semibold"
-            >
-              Login
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <!-- Admin Login Modal -->
+    <div id="loginModal" class="fixed inset-0 modal-bg items-center justify-center hidden"><div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm"><h3 class="text-2xl font-bold mb-6 text-center">Admin Login</h3><form id="loginForm"><div class="space-y-4"><input class="w-full p-3 border rounded-md" type="text" id="username" placeholder="Username" required><input class="w-full p-3 border rounded-md" type="password" id="password" placeholder="Password" required></div><p id="loginError" class="text-red-500 text-sm text-center mt-4 hidden">Invalid username or password.</p><div class="flex justify-end gap-4 mt-6"><button type="button" id="cancelLoginBtn" class="btn-secondary px-6 py-2 rounded-lg font-semibold">Cancel</button><button type="submit" class="btn-primary px-6 py-2 rounded-lg font-semibold">Login</button></div></form></div></div>
 
+    <!-- Swiper.js JS -->
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
       const vehicles = [
-        {
-          year: 2008,
-          make: "Mitsubishi",
-          model: "Lancer",
-          vin: "JA3AU26U08U005457",
-          color: "Blue",
-          section: "Cars",
-          row: 12,
-          space: 9,
-          stockNumber: "1231-7714",
-          availableDate: "6/23/2025",
-          imageUrl:
-            "https://placehold.co/600x400/93c5fd/ffffff?text=2008+Lancer",
-          mileage: 145000,
-          engine: "2.0L I4",
-          transmission: "Automatic",
-          notes:
-            "Front-end damage. Engine and transmission are in good condition.",
-          price: 850,
-          bodyType: "Sedan",
-          added: "2025-06-20",
-        },
-        {
-          year: 2012,
-          make: "Ford",
-          model: "Focus",
-          vin: "1FADP3F28CL123456",
-          color: "Red",
-          section: "Cars",
-          row: 5,
-          space: 2,
-          stockNumber: "4589-1211",
-          availableDate: "6/28/2025",
-          imageUrl:
-            "https://placehold.co/600x400/f87171/ffffff?text=2012+Focus",
-          mileage: 98000,
-          engine: "2.0L I4",
-          transmission: "Automatic",
-          notes: "Minor body scratches. Runs and drives.",
-          price: 1500,
-          bodyType: "Sedan",
-          added: "2025-06-18",
-        },
-        {
-          year: 2005,
-          make: "Honda",
-          model: "Civic",
-          vin: "2HGEJ76595H567890",
-          color: "Silver",
-          section: "Cars",
-          row: 8,
-          space: 14,
-          stockNumber: "7821-4453",
-          availableDate: "7/01/2025",
-          imageUrl:
-            "https://placehold.co/600x400/d1d5db/ffffff?text=2005+Civic",
-          mileage: 180000,
-          engine: "1.7L I4",
-          transmission: "Manual",
-          notes: "Clean interior. Good for parts.",
-          price: 600,
-          bodyType: "Coupe",
-          added: "2025-06-22",
-        },
-        {
-          year: 2015,
-          make: "Chevrolet",
-          model: "Cruze",
-          vin: "1G1PC5SB3F7112233",
-          color: "Black",
-          section: "Cars",
-          row: 1,
-          space: 7,
-          stockNumber: "3321-9870",
-          availableDate: "7/05/2025",
-          imageUrl:
-            "https://placehold.co/600x400/404040/ffffff?text=2015+Cruze",
-          mileage: 110000,
-          engine: "1.4L Turbo I4",
-          transmission: "Automatic",
-          notes: "Side panel damage. Interior is in great shape.",
-          price: 1800,
-          bodyType: "Sedan",
-          added: "2025-06-25",
-        },
-        {
-          year: 2009,
-          make: "Toyota",
-          model: "Camry",
-          vin: "4T1BE46K89U334455",
-          color: "White",
-          section: "Cars",
-          row: 3,
-          space: 11,
-          stockNumber: "6543-1122",
-          availableDate: "6/25/2025",
-          imageUrl:
-            "https://placehold.co/600x400/f3f4f6/000000?text=2009+Camry",
-          mileage: 210000,
-          engine: "2.4L I4",
-          transmission: "Automatic",
-          notes: "High mileage but runs well. Some rust on quarter panels.",
-          price: 1250,
-          bodyType: "Sedan",
-          added: "2025-06-15",
-        },
-        {
-          year: 2011,
-          make: "Nissan",
-          model: "Altima",
-          vin: "1N4AL2AP5BC667788",
-          color: "Gray",
-          section: "Cars",
-          row: 10,
-          space: 1,
-          stockNumber: "9876-5432",
-          availableDate: "6/30/2025",
-          imageUrl:
-            "https://placehold.co/600x400/9ca3af/ffffff?text=2011+Altima",
-          mileage: 135000,
-          engine: "2.5L I4",
-          transmission: "Automatic",
-          notes: "Transmission issues. Good for body parts and interior.",
-          price: 750,
-          bodyType: "Sedan",
-          added: "2025-06-19",
-        },
-        {
-          year: 2007,
-          make: "Dodge",
-          model: "Ram 1500",
-          vin: "3D7HU18N57G998877",
-          color: "Maroon",
-          section: "Trucks",
-          row: 1,
-          space: 4,
-          stockNumber: "2468-1357",
-          availableDate: "7/10/2025",
-          imageUrl: "https://placehold.co/600x400/881337/ffffff?text=2007+Ram",
-          mileage: 195000,
-          engine: "5.7L V8 HEMI",
-          transmission: "Automatic",
-          notes: "Solid frame and body. Engine needs work.",
-          price: 2200,
-          bodyType: "Truck",
-          added: "2025-06-24",
-        },
-        {
-          year: 2014,
-          make: "Hyundai",
-          model: "Elantra",
-          vin: "KMHDH4AE4EU112233",
-          color: "Silver",
-          section: "Cars",
-          row: 9,
-          space: 5,
-          stockNumber: "1357-2468",
-          availableDate: "7/12/2025",
-          imageUrl:
-            "https://placehold.co/600x400/d1d5db/ffffff?text=2014+Elantra",
-          mileage: 85000,
-          engine: "1.8L I4",
-          transmission: "Automatic",
-          notes: "Rear bumper damage. Low mileage engine.",
-          price: 1650,
-          bodyType: "Sedan",
-          added: "2025-06-23",
-        },
-        {
-          year: 2010,
-          make: "Jeep",
-          model: "Wrangler",
-          vin: "1J4FA24S4AP445566",
-          color: "Green",
-          section: "SUVs",
-          row: 2,
-          space: 3,
-          stockNumber: "5566-7788",
-          availableDate: "7/15/2025",
-          imageUrl:
-            "https://placehold.co/600x400/4d7c0f/ffffff?text=2010+Wrangler",
-          mileage: 120000,
-          engine: "3.8L V6",
-          transmission: "Manual",
-          notes: "Frame has some rust. Good for doors, top, and axles.",
-          price: 2800,
-          bodyType: "SUV",
-          added: "2025-06-17",
-        },
-        {
-          year: 2006,
-          make: "Ford",
-          model: "Explorer",
-          vin: "1FM5U28E56UA77889",
-          color: "Blue",
-          section: "SUVs",
-          row: 4,
-          space: 6,
-          stockNumber: "8899-0011",
-          availableDate: "7/20/2025",
-          imageUrl:
-            "https://placehold.co/600x400/3b82f6/ffffff?text=2006+Explorer",
-          mileage: 160000,
-          engine: "4.0L V6",
-          transmission: "Automatic",
-          notes: "Intact interior. Good glass and body panels.",
-          price: 950,
-          bodyType: "SUV",
-          added: "2025-06-21",
-        },
+        { year: 2008, make: 'Mitsubishi', model: 'Lancer', vin: 'JA3AU26U08U005457', color: 'Blue', section: 'Cars', row: 12, space: 9, stockNumber: '1231-7714', availableDate: '6/23/2025', imageUrl: 'https://placehold.co/600x400/93c5fd/ffffff?text=2008+Lancer', mileage: 145000, engine: '2.0L I4', transmission: 'Automatic', notes: 'Front-end damage. Engine and transmission are in good condition.', price: 850, bodyType: 'Sedan', added: '2025-06-20' },
+        { year: 2012, make: 'Ford', model: 'Focus', vin: '1FADP3F28CL123456', color: 'Red', section: 'Cars', row: 5, space: 2, stockNumber: '4589-1211', availableDate: '6/28/2025', imageUrl: 'https://placehold.co/600x400/f87171/ffffff?text=2012+Focus', mileage: 98000, engine: '2.0L I4', transmission: 'Automatic', notes: 'Minor body scratches. Runs and drives.', price: 1500, bodyType: 'Sedan', added: '2025-06-18' },
+        { year: 2005, make: 'Honda', model: 'Civic', vin: '2HGEJ76595H567890', color: 'Silver', section: 'Cars', row: 8, space: 14, stockNumber: '7821-4453', availableDate: '7/01/2025', imageUrl: 'https://placehold.co/600x400/d1d5db/ffffff?text=2005+Civic', mileage: 180000, engine: '1.7L I4', transmission: 'Manual', notes: 'Clean interior. Good for parts.', price: 600, bodyType: 'Coupe', added: '2025-06-22' },
+        { year: 2015, make: 'Chevrolet', model: 'Cruze', vin: '1G1PC5SB3F7112233', color: 'Black', section: 'Cars', row: 1, space: 7, stockNumber: '3321-9870', availableDate: '7/05/2025', imageUrl: 'https://placehold.co/600x400/404040/ffffff?text=2015+Cruze', mileage: 110000, engine: '1.4L Turbo I4', transmission: 'Automatic', notes: 'Side panel damage. Interior is in great shape.', price: 1800, bodyType: 'Sedan', added: '2025-06-25' },
+        { year: 2009, make: 'Toyota', model: 'Camry', vin: '4T1BE46K89U334455', color: 'White', section: 'Cars', row: 3, space: 11, stockNumber: '6543-1122', availableDate: '6/25/2025', imageUrl: 'https://placehold.co/600x400/f3f4f6/000000?text=2009+Camry', mileage: 210000, engine: '2.4L I4', transmission: 'Automatic', notes: 'High mileage but runs well. Some rust on quarter panels.', price: 1250, bodyType: 'Sedan', added: '2025-06-15' },
+        { year: 2011, make: 'Nissan', model: 'Altima', vin: '1N4AL2AP5BC667788', color: 'Gray', section: 'Cars', row: 10, space: 1, stockNumber: '9876-5432', availableDate: '6/30/2025', imageUrl: 'https://placehold.co/600x400/9ca3af/ffffff?text=2011+Altima', mileage: 135000, engine: '2.5L I4', transmission: 'Automatic', notes: 'Transmission issues. Good for body parts and interior.', price: 750, bodyType: 'Sedan', added: '2025-06-19' },
+        { year: 2007, make: 'Dodge', model: 'Ram 1500', vin: '3D7HU18N57G998877', color: 'Maroon', section: 'Trucks', row: 1, space: 4, stockNumber: '2468-1357', availableDate: '7/10/2025', imageUrl: 'https://placehold.co/600x400/881337/ffffff?text=2007+Ram', mileage: 195000, engine: '5.7L V8 HEMI', transmission: 'Automatic', notes: 'Solid frame and body. Engine needs work.', price: 2200, bodyType: 'Truck', added: '2025-06-24' },
+        { year: 2014, make: 'Hyundai', model: 'Elantra', vin: 'KMHDH4AE4EU112233', color: 'Silver', section: 'Cars', row: 9, space: 5, stockNumber: '1357-2468', availableDate: '7/12/2025', imageUrl: 'https://placehold.co/600x400/d1d5db/ffffff?text=2014+Elantra', mileage: 85000, engine: '1.8L I4', transmission: 'Automatic', notes: 'Rear bumper damage. Low mileage engine.', price: 1650, bodyType: 'Sedan', added: '2025-06-23' },
+        { year: 2010, make: 'Jeep', model: 'Wrangler', vin: '1J4FA24S4AP445566', color: 'Green', section: 'SUVs', row: 2, space: 3, stockNumber: '5566-7788', availableDate: '7/15/2025', imageUrl: 'https://placehold.co/600x400/4d7c0f/ffffff?text=2010+Wrangler', mileage: 120000, engine: '3.8L V6', transmission: 'Manual', notes: 'Frame has some rust. Good for doors, top, and axles.', price: 2800, bodyType: 'SUV', added: '2025-06-17' },
+        { year: 2006, make: 'Ford', model: 'Explorer', vin: '1FM5U28E56UA77889', color: 'Blue', section: 'SUVs', row: 4, space: 6, stockNumber: '8899-0011', availableDate: '7/20/2025', imageUrl: 'https://placehold.co/600x400/3b82f6/ffffff?text=2006+Explorer', mileage: 160000, engine: '4.0L V6', transmission: 'Automatic', notes: 'Intact interior. Good glass and body panels.', price: 950, bodyType: 'SUV', added: '2025-06-21' }
       ];
 
       let swiper;
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const inventoryContainer = document.querySelector(
-          "#vehicle-inventory .swiper-wrapper"
-        );
-        const noResultsEl = document.getElementById("no-results");
-        const vehicleCountEl = document.getElementById("vehicle-count");
-        const sortEl = document.getElementById("sort");
-        const makeEl = document.getElementById("make");
-        const modelEl = document.getElementById("model");
-        const priceRangeEl = document.getElementById("priceRange");
-        const mileageRangeEl = document.getElementById("mileageRange");
-        const bodyTypeEl = document.getElementById("bodyType");
-        const transmissionEl = document.getElementById("transmission");
-        const resetBtn = document.getElementById("resetFilters");
-        const priceMinLabel = document.getElementById("priceMin-label");
-        const priceMaxLabel = document.getElementById("priceMax-label");
-        const mileageMinLabel = document.getElementById("mileageMin-label");
-        const mileageMaxLabel = document.getElementById("mileageMax-label");
-        const adminLoginBtn = document.getElementById("adminLoginBtn");
-        const loginModal = document.getElementById("loginModal");
-        const cancelLoginBtn = document.getElementById("cancelLoginBtn");
-        const loginForm = document.getElementById("loginForm");
-        const loginError = document.getElementById("loginError");
+      document.addEventListener('DOMContentLoaded', () => {
+          const inventoryContainer = document.querySelector('#vehicle-inventory .swiper-wrapper');
+          const noResultsEl = document.getElementById('no-results');
+          const vehicleCountEl = document.getElementById('vehicle-count');
+          const sortEl = document.getElementById('sort');
+          const makeEl = document.getElementById('make');
+          const modelEl = document.getElementById('model');
+          const priceRangeEl = document.getElementById('priceRange');
+          const mileageRangeEl = document.getElementById('mileageRange');
+          const bodyTypeEl = document.getElementById('bodyType');
+          const transmissionEl = document.getElementById('transmission');
+          const resetBtn = document.getElementById('resetFilters');
+          const priceMinLabel = document.getElementById('priceMin-label');
+          const priceMaxLabel = document.getElementById('priceMax-label');
+          const mileageMinLabel = document.getElementById('mileageMin-label');
+          const mileageMaxLabel = document.getElementById('mileageMax-label');
+          const adminLoginBtn = document.getElementById('adminLoginBtn');
+          const loginModal = document.getElementById('loginModal');
+          const cancelLoginBtn = document.getElementById('cancelLoginBtn');
+          const loginForm = document.getElementById('loginForm');
+          const loginError = document.getElementById('loginError');
 
-        window.prepareDetailsPage = function (vin) {
-          const vehicle = vehicles.find((v) => v.vin === vin);
-          if (vehicle) {
-            localStorage.setItem("selectedVehicle", JSON.stringify(vehicle));
-            localStorage.setItem("vehicleInventory", JSON.stringify(vehicles));
-            window.location.href = "details.html";
+          window.prepareDetailsPage = function(vin) {
+            const vehicle = vehicles.find(v => v.vin === vin);
+            if (vehicle) {
+              localStorage.setItem('selectedVehicle', JSON.stringify(vehicle));
+              localStorage.setItem('vehicleInventory', JSON.stringify(vehicles));
+              window.location.href = 'details.html';
+            }
           }
-        };
 
-        const initSwiper = () => {
-          swiper = new Swiper(".swiper-container", {
-            slidesPerView: 1.2,
-            spaceBetween: 15,
-            pagination: {
-              el: ".swiper-pagination",
-              clickable: true,
-            },
-            breakpoints: {
-              // when window width is >= 768px (Desktop)
-              768: {
-                slidesPerView: "auto", // Use auto to let the grid CSS take over
-                spaceBetween: 24,
-              },
-            },
-          });
-        };
+          const initSwiper = () => {
+              swiper = new Swiper('.swiper-container', {
+                  slidesPerView: 1.2,
+                  spaceBetween: 15,
+                  pagination: {
+                      el: '.swiper-pagination',
+                      clickable: true,
+                  },
+                  breakpoints: {
+                      768: {
+                          slidesPerView: 'auto', 
+                          spaceBetween: 24,
+                      },
+                  }
+              });
+          };
 
-        const displayVehicles = (vehicleList) => {
-          inventoryContainer.innerHTML = "";
-          vehicleCountEl.textContent = vehicleList.length;
-          noResultsEl.classList.toggle("hidden", vehicleList.length > 0);
+          const displayVehicles = (vehicleList) => {
+              inventoryContainer.innerHTML = '';
+              vehicleCountEl.textContent = vehicleList.length;
+              noResultsEl.classList.toggle('hidden', vehicleList.length > 0);
 
-          vehicleList.forEach((vehicle) => {
-            const vehicleCard = `
+              vehicleList.forEach(vehicle => {
+                  const vehicleCard = `
                     <div class="swiper-slide bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
                       <div class="relative">
-                          <img src="${vehicle.imageUrl}" alt="${vehicle.year} ${
-              vehicle.make
-            } ${vehicle.model}" class="w-full h-48 object-cover">
+                          <img src="${vehicle.imageUrl}" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}" class="w-full h-48 object-cover">
                           <div class="absolute top-0 right-0 bg-white bg-opacity-80 px-4 py-2 rounded-bl-lg">
                               <p class="text-2xl font-extrabold price-tag">$${vehicle.price.toLocaleString()}</p>
                           </div>
                       </div>
                       <div class="p-4 flex-grow flex flex-col">
-                        <h3 class="text-xl font-bold vehicle-title">${
-                          vehicle.year
-                        } ${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()}</h3>
+                        <h3 class="text-xl font-bold vehicle-title">${vehicle.year} ${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()}</h3>
                         <div class="text-gray-600 mt-2 space-y-1 text-sm flex-grow">
                           <p><span class="font-semibold">Mileage:</span> ${vehicle.mileage.toLocaleString()} mi</p>
-                          <p><span class="font-semibold">VIN:</span> ${
-                            vehicle.vin
-                          }</p>
+                          <p><span class="font-semibold">VIN:</span> ${vehicle.vin}</p>
                         </div>
                         <div class="mt-4">
-                            <a href="details.html" onclick="prepareDetailsPage('${
-                              vehicle.vin
-                            }')" class="block w-full text-center p-3 rounded-lg details-button font-semibold mb-3">More Details</a>
+                            <a href="details.html" onclick="prepareDetailsPage('${vehicle.vin}')" class="block w-full text-center p-3 rounded-lg details-button font-semibold mb-3">More Details</a>
                         </div>
                       </div>
                     </div>`;
-            inventoryContainer.innerHTML += vehicleCard;
-          });
+                  inventoryContainer.innerHTML += vehicleCard;
+              });
 
-          if (swiper) {
-            swiper.update();
-          }
-        };
+              if (swiper) {
+                  swiper.update();
+              }
+          };
 
-        const applyFiltersAndSort = () => {
-          let filteredVehicles = [...vehicles];
-          const make = makeEl.value;
-          const model = modelEl.value;
-          const maxPrice = parseInt(priceRangeEl.value, 10);
-          const maxMileage = parseInt(mileageRangeEl.value, 10);
-          const bodyType = bodyTypeEl.value;
-          const transmission = transmissionEl.value;
+          const applyFiltersAndSort = () => {
+              let filteredVehicles = [...vehicles];
+              const make = makeEl.value;
+              const model = modelEl.value;
+              const maxPrice = parseInt(priceRangeEl.value, 10);
+              const maxMileage = parseInt(mileageRangeEl.value, 10);
+              const bodyType = bodyTypeEl.value;
+              const transmission = transmissionEl.value;
 
-          filteredVehicles = filteredVehicles.filter((v) => {
-            if (make && v.make !== make) return false;
-            if (model && v.model !== model) return false;
-            if (bodyType && v.bodyType !== bodyType) return false;
-            if (transmission && v.transmission !== transmission) return false;
-            if (v.price > maxPrice) return false;
-            if (v.mileage > maxMileage) return false;
-            return true;
-          });
+              filteredVehicles = filteredVehicles.filter(v => {
+                  if (make && v.make !== make) return false;
+                  if (model && v.model !== model) return false;
+                  if (bodyType && v.bodyType !== bodyType) return false;
+                  if (transmission && v.transmission !== transmission) return false;
+                  if (v.price > maxPrice) return false;
+                  if (v.mileage > maxMileage) return false;
+                  return true;
+              });
 
-          const sort = sortEl.value;
-          filteredVehicles.sort((a, b) => {
-            switch (sort) {
-              case "price-asc":
-                return a.price - b.price;
-              case "price-desc":
-                return b.price - a.price;
-              case "year-desc":
-                return b.year - a.year;
-              case "year-asc":
-                return a.year - b.year;
-              case "recent":
-                return new Date(b.added) - new Date(a.added);
-              default:
-                return 0;
-            }
-          });
+              const sort = sortEl.value;
+              filteredVehicles.sort((a, b) => {
+                  switch (sort) {
+                      case 'price-asc': return a.price - b.price;
+                      case 'price-desc': return b.price - a.price;
+                      case 'year-desc': return b.year - a.year;
+                      case 'year-asc': return a.year - b.year;
+                      case 'recent': return new Date(b.added) - new Date(a.added);
+                      default: return 0;
+                  }
+              });
 
-          displayVehicles(filteredVehicles);
-        };
+              displayVehicles(filteredVehicles);
+          };
 
-        const populateFilters = () => {
-          const makes = [...new Set(vehicles.map((v) => v.make))].sort();
-          const bodyTypes = [
-            ...new Set(vehicles.map((v) => v.bodyType)),
-          ].sort();
-          const transmissions = [
-            ...new Set(vehicles.map((v) => v.transmission)),
-          ].sort();
-          makeEl.innerHTML =
-            '<option value="">All Makes</option>' +
-            makes.map((m) => `<option value="${m}">${m}</option>`).join("");
-          bodyTypeEl.innerHTML =
-            '<option value="">All Body Types</option>' +
-            bodyTypes.map((b) => `<option value="${b}">${b}</option>`).join("");
-          transmissionEl.innerHTML =
-            '<option value="">All Transmissions</option>' +
-            transmissions
-              .map((t) => `<option value="${t}">${t}</option>`)
-              .join("");
-          const prices = vehicles.map((v) => v.price);
-          priceRangeEl.min = Math.min(...prices);
-          priceRangeEl.max = Math.max(...prices);
-          priceRangeEl.value = priceRangeEl.max;
-          priceMinLabel.textContent = `$${priceRangeEl.min}`;
-          priceMaxLabel.textContent = `$${priceRangeEl.max}`;
-          const mileages = vehicles.map((v) => v.mileage);
-          mileageRangeEl.min = Math.min(...mileages);
-          mileageRangeEl.max = Math.max(...mileages);
-          mileageRangeEl.value = mileageRangeEl.max;
-          mileageMinLabel.textContent = `${(mileageRangeEl.min / 1000).toFixed(
-            0
-          )}k`;
-          mileageMaxLabel.textContent = `${(mileageRangeEl.max / 1000).toFixed(
-            0
-          )}k+`;
-        };
+          const populateFilters = () => {
+              const makes = [...new Set(vehicles.map(v => v.make))].sort();
+              const bodyTypes = [...new Set(vehicles.map(v => v.bodyType))].sort();
+              const transmissions = [...new Set(vehicles.map(v => v.transmission))].sort();
+              makeEl.innerHTML = '<option value="">All Makes</option>' + makes.map(m => `<option value="${m}">${m}</option>`).join('');
+              bodyTypeEl.innerHTML = '<option value="">All Body Types</option>' + bodyTypes.map(b => `<option value="${b}">${b}</option>`).join('');
+              transmissionEl.innerHTML = '<option value="">All Transmissions</option>' + transmissions.map(t => `<option value="${t}">${t}</option>`).join('');
+              const prices = vehicles.map(v => v.price);
+              priceRangeEl.min = Math.min(...prices);
+              priceRangeEl.max = Math.max(...prices);
+              priceRangeEl.value = priceRangeEl.max;
+              priceMinLabel.textContent = `$${priceRangeEl.min}`;
+              priceMaxLabel.textContent = `$${priceRangeEl.max}`;
+              const mileages = vehicles.map(v => v.mileage);
+              mileageRangeEl.min = Math.min(...mileages);
+              mileageRangeEl.max = Math.max(...mileages);
+              mileageRangeEl.value = mileageRangeEl.max;
+              mileageMinLabel.textContent = `${(mileageRangeEl.min/1000).toFixed(0)}k`;
+              mileageMaxLabel.textContent = `${(mileageRangeEl.max/1000).toFixed(0)}k+`;
+          };
 
-        const updateModelFilter = (selectedMake) => {
-          modelEl.innerHTML = '<option value="">All Models</option>';
-          if (selectedMake) {
-            const models = [
-              ...new Set(
-                vehicles
-                  .filter((v) => v.make === selectedMake)
-                  .map((v) => v.model)
-              ),
-            ].sort();
-            modelEl.innerHTML += models
-              .map((m) => `<option value="${m}">${m}</option>`)
-              .join("");
-          }
-        };
+          const updateModelFilter = (selectedMake) => {
+              modelEl.innerHTML = '<option value="">All Models</option>';
+              if (selectedMake) {
+                  const models = [...new Set(vehicles.filter(v => v.make === selectedMake).map(v => v.model))].sort();
+                  modelEl.innerHTML += models.map(m => `<option value="${m}">${m}</option>`).join('');
+              }
+          };
 
-        const resetAllFilters = () => {
-          document
-            .querySelectorAll("select")
-            .forEach((sel) => (sel.selectedIndex = 0));
-          updateModelFilter("");
-          priceRangeEl.value = priceRangeEl.max;
-          priceMaxLabel.textContent = `$${priceRangeEl.max}`;
-          mileageRangeEl.value = mileageRangeEl.max;
-          mileageMaxLabel.textContent = `${(mileageRangeEl.max / 1000).toFixed(
-            0
-          )}k+`;
-          applyFiltersAndSort();
-        };
+          const resetAllFilters = () => {
+              document.querySelectorAll('select').forEach(sel => sel.selectedIndex = 0);
+              updateModelFilter('');
+              priceRangeEl.value = priceRangeEl.max;
+              priceMaxLabel.textContent = `$${priceRangeEl.max}`;
+              mileageRangeEl.value = mileageRangeEl.max;
+              mileageMaxLabel.textContent = `${(mileageRangeEl.max/1000).toFixed(0)}k+`;
+              applyFiltersAndSort();
+          };
 
-        const handleLogin = (e) => {
-          e.preventDefault();
-          const username = loginForm.elements.username.value;
-          const password = loginForm.elements.password.value;
-          if (username === "Tonz606" && password === "Beast3303") {
-            window.location.href = "admin.html";
-          } else {
-            loginError.classList.remove("hidden");
-          }
-        };
+          const handleLogin = (e) => {
+              e.preventDefault();
+              const username = loginForm.elements.username.value;
+              const password = loginForm.elements.password.value;
+              if (username === 'Tonz606' && password === 'Beast3303') {
+                  window.location.href = 'admin.html';
+              } else {
+                  loginError.classList.remove('hidden');
+              }
+          };
 
-        // --- INITIALIZATION ---
-        populateFilters();
-        applyFiltersAndSort(); // This now populates the slides
-        initSwiper(); // Initialize Swiper after the first display
+          // --- INITIALIZATION ---
+          populateFilters();
+          applyFiltersAndSort(); 
+          initSwiper(); 
 
-        // Event Listeners
-        const filters = [
-          sortEl,
-          makeEl,
-          modelEl,
-          priceRangeEl,
-          mileageRangeEl,
-          bodyTypeEl,
-          transmissionEl,
-        ];
-        filters.forEach((el) =>
-          el.addEventListener("change", applyFiltersAndSort)
-        );
-        makeEl.addEventListener("change", (e) =>
-          updateModelFilter(e.target.value)
-        );
-        priceRangeEl.addEventListener(
-          "input",
-          (e) =>
-            (priceMaxLabel.textContent = `$${parseInt(
-              e.target.value,
-              10
-            ).toLocaleString()}`)
-        );
-        mileageRangeEl.addEventListener(
-          "input",
-          (e) =>
-            (mileageMaxLabel.textContent = `${(
-              parseInt(e.target.value, 10) / 1000
-            ).toFixed(0)}k`)
-        );
-        resetBtn.addEventListener("click", resetAllFilters);
-        adminLoginBtn.addEventListener(
-          "click",
-          () => (loginModal.style.display = "flex")
-        );
-        cancelLoginBtn.addEventListener(
-          "click",
-          () => (loginModal.style.display = "none")
-        );
-        loginForm.addEventListener("submit", handleLogin);
+          // Event Listeners
+          const filters = [sortEl, makeEl, modelEl, priceRangeEl, mileageRangeEl, bodyTypeEl, transmissionEl];
+          filters.forEach(el => el.addEventListener('change', applyFiltersAndSort));
+          makeEl.addEventListener('change', (e) => updateModelFilter(e.target.value));
+          priceRangeEl.addEventListener('input', (e) => priceMaxLabel.textContent = `$${parseInt(e.target.value, 10).toLocaleString()}`);
+          mileageRangeEl.addEventListener('input', (e) => mileageMaxLabel.textContent = `${(parseInt(e.target.value, 10)/1000).toFixed(0)}k`);
+          resetBtn.addEventListener('click', resetAllFilters);
+          adminLoginBtn.addEventListener('click', () => loginModal.style.display = 'flex');
+          cancelLoginBtn.addEventListener('click', () => loginModal.style.display = 'none');
+          loginForm.addEventListener('submit', handleLogin);
       });
     </script>
   </body>
