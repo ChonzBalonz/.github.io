@@ -37,20 +37,69 @@
       .cta-button:hover {
         background-color: #15803d;
       }
+      /* Dark mode styles (copied from index.html) */
+      body.dark-mode {
+        background-color: #18181b;
+        color: #e5e7eb;
+      }
+      .dark-mode-header {
+        background-color: #23272f !important;
+        box-shadow: 0 1px 4px #11182733;
+      }
+      .dark-mode-title {
+        color: #facc15 !important;
+      }
+      .bg-white,
+      .shadow-md,
+      .shadow-xl {
+        background-color: #23272f !important;
+        color: #e5e7eb !important;
+      }
+      .text-gray-800,
+      .text-gray-700,
+      .text-gray-600 {
+        color: #e5e7eb !important;
+      }
+      .border-gray-200 {
+        border-color: #374151 !important;
+      }
+      .price-tag-details,
+      .price-tag-suggestion {
+        color: #facc15 !important;
+      }
+      .detail-label {
+        color: #facc15 !important;
+      }
+      .back-link {
+        color: #facc15 !important;
+      }
     </style>
   </head>
   <body class="bg-gray-100">
     <div class="max-w-4xl mx-auto">
       <!-- Header -->
-      <header class="bg-white p-4 shadow-sm flex items-center justify-between">
-        <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
+      <header
+        class="bg-white p-4 shadow-sm flex items-center justify-between dark-mode-header"
+      >
+        <h1
+          class="text-2xl font-extrabold text-gray-800 tracking-tight dark-mode-title"
+        >
           Junk 'n' Deals
         </h1>
-        <a
-          href="index.html"
-          class="text-lg font-semibold back-link hover:underline"
-          >&larr; Back to Inventory</a
-        >
+        <div class="flex items-center gap-4">
+          <a
+            href="index.html"
+            class="text-lg font-semibold back-link hover:underline"
+            >&larr; Back to Inventory</a
+          >
+          <button
+            id="darkModeToggle"
+            class="ml-4 px-3 py-1 rounded-lg font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition dark-mode-toggle"
+            title="Toggle dark mode"
+          >
+            🌙
+          </button>
+        </div>
       </header>
 
       <main class="p-4 md:p-6">
@@ -193,6 +242,27 @@
           detailsContainer.innerHTML =
             '<div class="p-8 text-center"><h2 class="text-2xl font-bold">No Vehicle Selected</h2><p class="mt-4 text-gray-600">Please go back to the inventory and select a vehicle to see its details.</p></div>';
         }
+
+        // Dark mode logic
+        const darkModeToggle = document.getElementById("darkModeToggle");
+        function setDarkMode(enabled) {
+          if (enabled) {
+            document.body.classList.add("dark-mode");
+            localStorage.setItem("darkMode", "true");
+            darkModeToggle.textContent = "☀️";
+            darkModeToggle.title = "Switch to light mode";
+          } else {
+            document.body.classList.remove("dark-mode");
+            localStorage.setItem("darkMode", "false");
+            darkModeToggle.textContent = "🌙";
+            darkModeToggle.title = "Switch to dark mode";
+          }
+        }
+        const darkPref = localStorage.getItem("darkMode");
+        setDarkMode(darkPref === "true");
+        darkModeToggle.addEventListener("click", () => {
+          setDarkMode(!document.body.classList.contains("dark-mode"));
+        });
       });
 
       function displayVehicleDetails(vehicle, container) {
