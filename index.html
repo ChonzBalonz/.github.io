@@ -103,13 +103,133 @@
         -webkit-appearance: none;
         margin-top: -6px;
       }
+      /* Dark mode styles */
+      body.dark-mode {
+        background-color: #18181b;
+        color: #e5e7eb;
+      }
+      .dark-mode-header {
+        background-color: #23272f !important;
+        box-shadow: 0 1px 4px #11182733;
+      }
+      .dark-mode-title {
+        color: #facc15 !important;
+      }
+      .dark-mode-location {
+        fill: #a3a3a3 !important;
+      }
+      .dark-mode-location-text {
+        color: #d1fae5 !important;
+      }
+      .dark-mode-admin {
+        color: #facc15 !important;
+      }
+      .dark-mode-toggle {
+        background-color: #23272f !important;
+        color: #facc15 !important;
+      }
+      .bg-white,
+      .shadow-md,
+      .shadow-xl {
+        background-color: #23272f !important;
+        color: #e5e7eb !important;
+      }
+      .text-gray-800,
+      .text-gray-700,
+      .text-gray-600 {
+        color: #e5e7eb !important;
+      }
+      .border-gray-200 {
+        border-color: #374151 !important;
+      }
+      .bg-gray-50 {
+        background-color: #23272f !important;
+      }
+      .filter-label {
+        color: #facc15 !important;
+      }
+      .filter-select,
+      .filter-input {
+        background-color: #18181b !important;
+        color: #e5e7eb !important;
+        border-color: #374151 !important;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        border-color: #facc15 !important;
+        box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.2) !important;
+      }
+      .details-button,
+      .btn-primary {
+        background-color: #facc15 !important;
+        color: #23272f !important;
+      }
+      .details-button:hover,
+      .btn-primary:hover {
+        background-color: #fde047 !important;
+      }
+      .btn-secondary {
+        background-color: #374151 !important;
+        color: #e5e7eb !important;
+      }
+      .btn-secondary:hover {
+        background-color: #23272f !important;
+      }
+      .breadcrumb-link {
+        color: #facc15 !important;
+      }
+      .breadcrumb-current {
+        color: #e5e7eb !important;
+      }
+      .breadcrumb-separator {
+        color: #a3a3a3 !important;
+      }
+      .price-tag {
+        color: #facc15 !important;
+      }
+      .modal-bg {
+        background-color: rgba(24, 24, 27, 0.8) !important;
+      }
+      input[type="range"]::-webkit-slider-runnable-track {
+        background: #374151 !important;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        background: #facc15 !important;
+      }
+      /* Firefox */
+      input[type="range"]::-moz-range-thumb {
+        background: #facc15 !important;
+      }
+      input[type="range"]::-moz-range-track {
+        background: #374151 !important;
+      }
+      /* IE */
+      input[type="range"]::-ms-fill-lower {
+        background: #374151 !important;
+      }
+      input[type="range"]::-ms-fill-upper {
+        background: #374151 !important;
+      }
+      .vehicle-inventory-heading {
+        color: #14532d !important; /* Deep green for high contrast */
+        text-shadow: 0 1px 2px #e5e7eb80, 0 0px 1px #00000010;
+        letter-spacing: 0.5px;
+      }
+      body.dark-mode .vehicle-inventory-heading {
+        color: #facc15 !important;
+        text-shadow: none;
+      }
     </style>
   </head>
   <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
-      <header class="bg-white p-4 shadow-sm flex items-center justify-between">
-        <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
+      <header
+        class="bg-white p-4 shadow-sm flex items-center justify-center dark-mode-header"
+      >
+        <h1
+          class="text-2xl font-extrabold text-gray-800 tracking-tight dark-mode-title"
+        >
           Junk 'n' Deals
         </h1>
         <nav class="flex items-center space-x-6">
@@ -119,20 +239,29 @@
               height="20px"
               viewBox="0 0 24 24"
               width="20px"
-              class="fill-current text-gray-500"
+              class="fill-current text-gray-500 dark-mode-location"
             >
               <path d="M0 0h24v24H0V0z" fill="none" />
               <path
                 d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
               />
             </svg>
-            <span class="font-semibold text-gray-700">CENTRAL</span>
+            <span class="font-semibold text-gray-700 dark-mode-location-text"
+              >CENTRAL</span
+            >
           </div>
           <button
             id="adminLoginBtn"
-            class="font-semibold text-gray-600 hover:text-green-800 transition"
+            class="font-semibold text-gray-600 hover:text-green-800 transition dark-mode-admin"
           >
             Admin Login
+          </button>
+          <button
+            id="darkModeToggle"
+            class="ml-4 px-3 py-1 rounded-lg font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 transition dark-mode-toggle"
+            title="Toggle dark mode"
+          >
+            🌙
           </button>
         </nav>
       </header>
@@ -244,7 +373,9 @@
 
         <!-- Inventory Grid -->
         <div class="lg:col-span-3">
-          <h1 class="text-2xl font-bold text-gray-800 mb-6">
+          <h1
+            class="text-2xl font-bold text-gray-800 mb-6 vehicle-inventory-heading"
+          >
             VEHICLE INVENTORY (<span id="vehicle-count">0</span>)
           </h1>
           <div
@@ -725,6 +856,22 @@
         }
       }
 
+      // Dark mode toggle logic
+      const darkModeToggle = document.getElementById("darkModeToggle");
+      function setDarkMode(enabled) {
+        if (enabled) {
+          document.body.classList.add("dark-mode");
+          localStorage.setItem("darkMode", "true");
+          darkModeToggle.textContent = "☀️";
+          darkModeToggle.title = "Switch to light mode";
+        } else {
+          document.body.classList.remove("dark-mode");
+          localStorage.setItem("darkMode", "false");
+          darkModeToggle.textContent = "🌙";
+          darkModeToggle.title = "Switch to dark mode";
+        }
+      }
+      // On load, set dark mode if preferred
       document.addEventListener("DOMContentLoaded", () => {
         populateFilters();
         applyFiltersAndSort();
@@ -769,6 +916,12 @@
           () => (loginModal.style.display = "none")
         );
         loginForm.addEventListener("submit", handleLogin);
+
+        const darkPref = localStorage.getItem("darkMode");
+        setDarkMode(darkPref === "true");
+        darkModeToggle.addEventListener("click", () => {
+          setDarkMode(!document.body.classList.contains("dark-mode"));
+        });
       });
     </script>
   </body>

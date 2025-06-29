@@ -21,12 +21,21 @@
       .detail-label {
         color: #4b5563;
       }
-      .price-tag-details {
+      .price-tag-details,
+      .price-tag-suggestion {
         color: #16a34a;
       }
       .part-card {
         border-left-width: 4px;
         border-left-color: #166534;
+      }
+      .cta-button {
+        background-color: #166534;
+        color: white;
+        transition: background-color 0.3s;
+      }
+      .cta-button:hover {
+        background-color: #15803d;
       }
     </style>
   </head>
@@ -55,12 +64,15 @@
         <div id="compatibility-tool" class="mt-8">
           <!-- Part compatibility tool will be injected here -->
         </div>
+
+        <div id="also-bought-section" class="mt-8">
+          <!-- "People also buy" section will be injected here -->
+        </div>
       </main>
     </div>
 
     <script>
       // --- MOCK PARTS DATABASE ---
-      // In a real application, this would come from a server.
       const partsDatabase = [
         {
           name: "Alternator",
@@ -135,6 +147,21 @@
         },
       ];
 
+      /**
+       * Prepares the details page for a new vehicle and reloads the page.
+       * This is used by the "You might also like" suggestions.
+       */
+      window.viewSuggestion = function (vin) {
+        const allVehicles = JSON.parse(
+          localStorage.getItem("vehicleInventory")
+        );
+        const vehicle = allVehicles.find((v) => v.vin === vin);
+        if (vehicle) {
+          localStorage.setItem("selectedVehicle", JSON.stringify(vehicle));
+          window.location.reload();
+        }
+      };
+
       document.addEventListener("DOMContentLoaded", () => {
         const selectedVehicle = JSON.parse(
           localStorage.getItem("selectedVehicle")
@@ -146,6 +173,9 @@
         const detailsContainer = document.getElementById("details-container");
         const compatibilityContainer =
           document.getElementById("compatibility-tool");
+        const alsoBoughtContainer = document.getElementById(
+          "also-bought-section"
+        );
 
         if (selectedVehicle && fullInventory) {
           displayVehicleDetails(selectedVehicle, detailsContainer);
@@ -153,6 +183,11 @@
             selectedVehicle,
             fullInventory,
             compatibilityContainer
+          );
+          displayAlsoBought(
+            selectedVehicle,
+            fullInventory,
+            alsoBoughtContainer
           );
         } else {
           detailsContainer.innerHTML =
@@ -204,6 +239,27 @@
                     <h3 class="text-xl font-semibold text-gray-700">Notes</h3>
                     <p class="mt-2 text-gray-600 text-lg">${vehicle.notes}</p>
                 </div>
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-2xl font-bold text-center text-gray-800">Interested in this Vehicle?</h3>
+                    <p class="text-center text-gray-600 mt-2">Contact me for more information or to schedule a visit!</p>
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <a href="tel:630-540-6506" class="block bg-green-100 p-4 rounded-lg hover:bg-green-200 transition">
+                            <span class="text-4xl">📞</span>
+                            <span class="block mt-2 font-semibold text-green-800">Call Me</span>
+                            <span class="block text-gray-600">630-540-6506</span>
+                        </a>
+                        <a href="mailto:anthony3303@outlook.com" class="block bg-blue-100 p-4 rounded-lg hover:bg-blue-200 transition">
+                            <span class="text-4xl">📧</span>
+                            <span class="block mt-2 font-semibold text-blue-800">Email Me</span>
+                            <span class="block text-gray-600">anthony3303@outlook.com</span>
+                        </a>
+                        <a href="https://www.instagram.com/tonz606" target="_blank" rel="noopener noreferrer" class="block bg-pink-100 p-4 rounded-lg hover:bg-pink-200 transition">
+                            <span class="text-4xl">📸</span>
+                            <span class="block mt-2 font-semibold text-pink-800">DM on Instagram</span>
+                            <span class="block text-gray-600">@tonz606</span>
+                        </a>
+                    </div>
+                </div>
             </div>`;
         container.innerHTML = detailsHTML;
       }
@@ -213,7 +269,6 @@
           '<h2 class="text-2xl font-bold text-gray-800 mb-4">Part Compatibility Tool</h2>';
         const foundParts = [];
 
-        // Find parts that fit the current vehicle
         partsDatabase.forEach((part) => {
           const isCompatible = part.fitment.some(
             (fit) =>
@@ -232,13 +287,10 @@
           return;
         }
 
-        // For each compatible part, find other vehicles in inventory that are also compatible
         compatiblePartsHTML += '<div class="space-y-4">';
         foundParts.forEach((part) => {
           const donorVehicles = inventory.filter((vehicle) => {
-            // Don't list the current vehicle as its own donor
             if (vehicle.vin === currentVehicle.vin) return false;
-
             return part.fitment.some(
               (fit) =>
                 fit.make === vehicle.make &&
@@ -269,6 +321,58 @@
         compatiblePartsHTML += "</div>";
 
         container.innerHTML = compatiblePartsHTML;
+      }
+
+      function displayAlsoBought(currentVehicle, inventory, container) {
+        let alsoBoughtHTML = `<h2 class="text-2xl font-bold text-gray-800 mb-4">You Might Also Like</h2>`;
+
+        // Get all other vehicles
+        const otherVehicles = inventory.filter(
+          (v) => v.vin !== currentVehicle.vin
+        );
+
+        // Shuffle the array to get random vehicles
+        for (let i = otherVehicles.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [otherVehicles[i], otherVehicles[j]] = [
+            otherVehicles[j],
+            otherVehicles[i],
+          ];
+        }
+
+        // Take the first two
+        const suggestions = otherVehicles.slice(0, 2);
+
+        if (suggestions.length === 0) {
+          return; // Don't display the section if there are no other cars
+        }
+
+        alsoBoughtHTML += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+        suggestions.forEach((vehicle) => {
+          alsoBoughtHTML += `
+                <a href="#" onclick="viewSuggestion('${
+                  vehicle.vin
+                }')" class="bg-white rounded-lg shadow-md overflow-hidden block hover:shadow-xl transition-shadow">
+                  <div class="relative">
+                      <img src="${vehicle.imageUrl}" alt="${vehicle.year} ${
+            vehicle.make
+          } ${vehicle.model}" class="w-full h-40 object-cover">
+                      <div class="absolute top-0 right-0 bg-white bg-opacity-80 px-3 py-1 rounded-bl-lg">
+                          <p class="text-lg font-bold price-tag-suggestion">$${vehicle.price.toLocaleString()}</p>
+                      </div>
+                  </div>
+                  <div class="p-4">
+                    <h3 class="font-bold text-lg text-gray-800">${
+                      vehicle.year
+                    } ${vehicle.make} ${vehicle.model}</h3>
+                    <p class="text-sm text-gray-600">${vehicle.mileage.toLocaleString()} mi</p>
+                  </div>
+                </a>
+              `;
+        });
+        alsoBoughtHTML += "</div>";
+
+        container.innerHTML = alsoBoughtHTML;
       }
     </script>
   </body>
